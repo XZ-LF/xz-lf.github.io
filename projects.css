@@ -70,7 +70,7 @@ nav ul li a.active {
     border-bottom: rgba(170, 117, 255,1) 2px solid;
 }
 
-/* BTNs */
+/* Buttons */
 .btn-primary, .btn-secondary {
     padding: 0.5em 2em;
     border-radius: 10em;
@@ -108,7 +108,7 @@ nav ul li a.active {
 /* Layout Containers */
 .container {
     max-width: 1280px;
-    margin: 0 auto;
+    margin: 8em auto;
     width: 100%;
     padding: 0 50px;
     display:flex;
@@ -119,14 +119,14 @@ nav ul li a.active {
 #profile {
     position: relative; 
     max-width: 100%; 
-    margin: 6em 2% 4em 0;
+    margin: 0 2% 4em 0;
     padding: 0;
 }
 
 #projects {
     position: relative; 
     max-width: 100%;  
-    margin: 6em 0 4em 2%;
+    margin: 0 0 4em 2%;
     padding: 0;
 }
 
@@ -140,7 +140,7 @@ nav ul li a.active {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 2em;
-    margin-top: 2em;
+    margin-bottom: 2em;
 }
 
 .card {
@@ -182,14 +182,12 @@ nav ul li a.active {
 }
 
 .profile-image {
-    min-width: fit-content;
-    max-width: fit-content;
     object-fit: cover;
     border-radius: 100%;
     border: 2px rgba(255,255,255,0.1) solid;
-    margin: 1em;
+    margin: 2em 0;
     display: inline-flex;
-    width: 35%;
+    width: 160px;
     aspect-ratio: 1;
     overflow: hidden;
     background-color: #2a2a2a;
@@ -236,8 +234,8 @@ nav ul li a.active {
 }
 
 .description {
-    margin: 0 2em;
-    text-align: center;
+    font-size: 0.95em;
+    color: #ccc;
     margin-bottom: 15em;
 }
 
@@ -291,7 +289,7 @@ nav ul li a.active {
     align-items: center;
     gap: 0.5em;
     margin-top: 1em;
-    padding: 0.6em 1.2em;
+    padding: 0.3em 1.2em;
     background-color: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 6px;
@@ -302,17 +300,20 @@ nav ul li a.active {
     transition: all 0.2s ease;
 }
 
+
 .btn-roblox:hover {
     background-color: #fff;
     color: #000;
 }
 
 .icon-redirect {
-    transition: transform 0.2s ease;
+    font-size: large;
+    transition: all 0.5s cubic-bezier(0.17, 2.96, 0.3, 0.5);
 }
 
 .btn-roblox:hover .icon-redirect {
     transform: translate(2px, -2px); 
+    font-weight: bolder;
 }
 
 .card h3 {
@@ -328,15 +329,19 @@ footer {
     font-size: 0.9em;
 }
 
+/* Responsive */
 @media (max-width: 1000px) {
     .container {
         flex-direction: column;
+        align-items: center;
+        padding: 0 20px;
     }   
-    #projects {
-        margin: 1.5em 0 4em 0;
-    }
     #profile {
-        margin: 6em 0 1.5em 0;
+        max-width: 600px;
+        margin: 0 0 4em 0;
+    }
+    #projects {
+        margin: 0 0 4em 0;
     }
     .grid {
         grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -348,7 +353,6 @@ footer {
     }
 }
 
-/* Responsive */
 @media (max-width: 600px) {
     nav {
         justify-content: center;
