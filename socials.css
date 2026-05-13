@@ -55,8 +55,9 @@ nav ul li a {
     text-transform: uppercase;
     letter-spacing: 0.1em;
     padding: 0.25em 0.4em;
+    margin: 0.25em 0.4em;
+    border-bottom: rgba(170, 117, 255,0) 2px solid;
     transition: color 0.3s ease, border-bottom 0.3s ease;
-    border-bottom: 2px solid transparent;
 }
 
 nav ul li a:hover, nav ul li a.active {
@@ -246,7 +247,20 @@ footer {
 }
 
 @media (max-width: 600px) {
-    .logo { display: none; }
-    nav ul { width: 100%; justify-content: center; }
-    #header { width: 95%; }
-}
+    nav {
+        justify-content: center;
+    }
+    nav ul {
+        width: 100%;
+        justify-content: center;
+        gap: 0;
+    }
+    .logo{
+        display: none;
+    }
+    nav ul li a {
+        font-size: 0.8em; 
+        padding: 0 1vw;
+        margin: 0 1vw;
+    }
+}       

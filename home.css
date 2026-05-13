@@ -276,7 +276,7 @@ footer {
     }
     nav ul li a {
         font-size: 0.8em; 
-        padding: 0 2vw;
-        margin: 0;
+        padding: 0 1vw;
+        margin: 0 1vw;
     }
 }       
