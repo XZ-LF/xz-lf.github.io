@@ -1,0 +1,252 @@
+/* Base Styles & Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    cursor: default;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: linear-gradient(0deg,rgba(10, 0, 0, 1) 0%, rgba(54, 42, 18, 1) 20%, rgba(34, 14, 51, 1) 80%, rgba(0, 0, 0, 1) 100%);
+    color: #eeeeee;
+    line-height: 1.6;
+    overflow-x: hidden;
+    min-height: 100vh;
+}
+
+/* Header & Navigation */
+#header {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, 1.5em);
+    z-index: 1000;
+    width: clamp(50%, 1000px, 90%);
+    background-color: rgba(20, 20, 20, 0.8);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 0.75em 1.5em;
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-weight: bold;
+    letter-spacing: 1px;
+    color: #fff;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    gap: 1em;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: #a0a0a0;
+    font-size: 0.9em;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 0.25em 0.4em;
+    transition: color 0.3s ease, border-bottom 0.3s ease;
+    border-bottom: 2px solid transparent;
+}
+
+nav ul li a:hover, nav ul li a.active {
+    color: #fff;
+    border-bottom: rgba(170, 117, 255,1) 2px solid;
+}
+
+/* Buttons */
+.btn-primary {
+    padding: 0.6em 2em;
+    border-radius: 10em;
+    text-decoration: none;
+    font-weight: 500;
+    background-color: #fff;
+    color: #000;
+    transition: all 0.2s ease;
+    display: inline-block;
+    margin-top: 1em;
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px);
+    background-color: #ababab;
+}
+
+/* Layout Containers */
+.container {
+    max-width: 1350px;
+    margin: 120px auto 0;
+    padding: 0 50px;
+    display: flex;
+    gap: 2em;
+}
+
+#profile {
+    flex: 1;
+    max-width: 400px;
+}
+
+#social-grid {
+    flex: 2;
+}
+
+/* Cards */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5em;
+}
+
+.card {
+    background: rgba(26, 26, 26, 0.5);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.card:hover {
+    transform: scale(1.02);
+    border-color: rgba(170, 117, 255, 0.4);
+}
+
+.profile-card {
+    background: rgba(26, 26, 26, 0.5);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 2em 1em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.profile-image {
+    width: 120px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: 2px solid rgba(170, 117, 255, 0.5);
+    margin-bottom: 1.5em;
+    object-fit: cover;
+}
+
+/* Tags & Details */
+.tags {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.35em;
+    margin: 1em;
+}
+
+.tags p {
+    text-transform: uppercase;
+    font-size: smaller;
+    color: #fff;
+    transition: color 0.2s ease;
+}
+
+.tag {
+    border-radius: 5em;
+    padding: 0.1em .6em;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background-color: rgb(44, 35, 71);
+    border: 1px solid rgb(85, 58, 128);
+    color: #fff;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.tag:hover p {
+    color: rgb(170, 117, 255);
+}
+
+.tag:hover {
+    background-color: rgb(76, 58, 128);
+    transform: scale(1.05);
+}
+
+.dot {
+    border-radius: 100%;
+    display: inline-flex;
+    margin-right: 0.5em;
+    height: 0.4em;
+    aspect-ratio: 1;
+    background-color: rgb(85, 58, 128);
+    transition: background-color 0.2s ease;
+}
+
+.tag:hover .dot {
+    background-color: rgb(170, 117, 255);
+}
+
+
+.pronouns {
+    color: #888;
+    font-size: 0.85em;
+}
+
+.description {
+    font-size: 0.95em;
+    color: #ccc;
+}
+
+.card-content {
+    padding: 1.5em;
+}
+
+.btn-roblox {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    margin-top: 1.5em;
+    padding: 0.5em 1em;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    font-size: 0.8em;
+    transition: all 0.2s ease;
+}
+
+.card:hover .btn-roblox {
+    background: #fff;
+    color: #000;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 4em 0;
+    color: #444;
+}
+
+/* Responsive */
+@media (max-width: 1000px) {
+    .container {
+        flex-direction: column;
+        align-items: center;
+        padding: 0 20px;
+    }
+    #profile {
+        max-width: 600px;
+        width: 100%;
+    }
+}
+
+@media (max-width: 600px) {
+    .logo { display: none; }
+    nav ul { width: 100%; justify-content: center; }
+    #header { width: 95%; }
+}
