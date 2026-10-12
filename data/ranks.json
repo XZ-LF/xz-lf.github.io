@@ -1,0 +1,67 @@
+{
+  "E": { 
+    "level": 1, 
+    "title": "Complete Noob", 
+    "description": "Just starting out; learning the bare fundamentals." 
+  },
+  "E+": { 
+    "level": 2, 
+    "title": "Novice", 
+    "description": "Understands basic concepts and foundational workflows." 
+  },
+  "D": { 
+    "level": 3, 
+    "title": "Beginner", 
+    "description": "Can produce simple work and follow along with guidance." 
+  },
+  "D+": { 
+    "level": 4, 
+    "title": "Apprentice", 
+    "description": "Familiar with core tools, common conventions, and standard workflows." 
+  },
+  "C": { 
+    "level": 5, 
+    "title": "Intermediate", 
+    "description": "Creates functional, standalone work independently without supervision." 
+  },
+  "C+": { 
+    "level": 6, 
+    "title": "Competent", 
+    "description": "Consistently delivers solid results with clean structure and good practices." 
+  },
+  "B": { 
+    "level": 7, 
+    "title": "Skilled", 
+    "description": "Well-rounded and dependable; handles complex tasks with quality and speed." 
+  },
+  "B+": { 
+    "level": 8, 
+    "title": "Advanced", 
+    "description": "Deep technical proficiency; solves tricky edge cases and refines details." 
+  },
+  "A": { 
+    "level": 9, 
+    "title": "Expert", 
+    "description": "High-level craftsmanship; sets benchmarks for efficiency, quality, and standards." 
+  },
+  "A+": { 
+    "level": 10, 
+    "title": "Proficient", 
+    "description": "Production-grade execution; delivers polished, battle-tested work at scale." 
+  },
+  "S": { 
+    "level": 11, 
+    "title": "Elite", 
+    "description": "Top-tier expertise; invents custom workflows and pushes platform limits." 
+  },
+  "SS": { 
+    "level": 12, 
+    "title": "Legendary", 
+    "description": "Exceptional standard of creative and technical excellence across major projects." 
+  },
+  "SSS": { 
+    "level": 13, 
+    "title": "God Tier", 
+    "description": "Absolute peak domain mastery, effortless execution, and visionary innovation." 
+  }
+}

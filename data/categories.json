@@ -1,0 +1,283 @@
+{
+  "backend": {
+    "title": "Server Framework",
+    "description": "Systematic handling of the game",
+    "keywords": [],
+    "showcases": [
+      {
+        "title": "ETHRIX",
+        "image": "assets/games/ethrix.jpg",
+        "description": "All of the server frameworks are made by me",
+        "link": "#games",
+        "linkText": "See More →"
+      },
+      {
+        "title": "Sakura Stand",
+        "image": "assets/games/sakura_stand.jpg",
+        "description": "All of the server frameworks are made by me",
+        "link": "#games",
+        "linkText": "See More →"
+      }
+    ]
+  },
+  "frontend": {
+    "title": "Client Framework",
+    "description": "Visual handling of the game",
+    "keywords": [],
+    "showcases": [
+      {
+        "title": "ETHRIX",
+        "image": "assets/games/ethrix.jpg",
+        "description": "All of the client frameworks are made by me",
+        "link": "#games",
+        "linkText": "See More →"
+      },
+      {
+        "title": "Sakura Stand",
+        "image": "assets/games/sakura_stand.jpg",
+        "description": "All of the client frameworks are made by me",
+        "link": "#games",
+        "linkText": "See More →"
+      }
+    ]
+  },
+  "animation": {
+    "title": "Animations",
+    "description": "Animations made with Moon Animator to be used in-game",
+    "keywords": ["Moon Animator"],
+    "showcases": [
+      {
+        "title": "ETHRIX",
+        "image": "assets/games/ethrix.jpg",
+        "description": "All animations are made by me. Please refer to playing or watching online medias to review other animations",
+        "link": "#games",
+        "linkText": "See More →"
+      },
+      {
+        "title": "[ETHRIX] Sakura Star",
+        "image": "https://gyazo.com/817142c8c10bae5731e3fbcee0d786d0.gif",
+        "description": "A skill animation made in ETHRIX for Sakura Star"
+      },
+      {
+        "title": "[ETHRIX] Midknight : Vessel of Life",
+        "image": "https://gyazo.com/0ef6af752ad58eb68c090d82379a8788.gif",
+        "description": "A skill animation made in ETHRIX for Midknight : Vessel of Life"
+      },
+      {
+        "title": "[ETHRIX] Luna",
+        "image": "https://gyazo.com/4bf4364517c58924609a73d4b8760d5b.gif",
+        "description": "A basic attack animation made in ETHRIX for Luna"
+      },
+      {
+        "title": "[ETHRIX] Strongest Sorcerer",
+        "image": "https://gyazo.com/5d0215c251a9a16f71096a9ab46c8e11.gif",
+        "description": "Basic attack animations made in ETHRIX for Strongest Sorcerer"
+      },
+      {
+        "title": "[ETHRIX] Midknight",
+        "image": "https://gyazo.com/028ca81b5fb1189f1888bfad5ac7a869.gif",
+        "description": "Basic attack animations made in ETHRIX for Midknight"
+      },
+      {
+        "title": "Sakura Stand",
+        "image": "assets/games/sakura_stand.jpg",
+        "description": "All animations prior to 2024 are made by me. Please refer to playing or watching online medias to review other animations",
+        "link": "#games",
+        "linkText": "See More →"
+      },
+      {
+        "title": "[Sakura Stand] Midknight : Vessel of Life",
+        "image": "https://gyazo.com/0499ad8e28bf8cf59c784f67cc6ed5b5.gif",
+        "description": "A skill animation made in Sakura Stand for Midknight : Vessel of Life"
+      },
+      {
+        "title": "[Sakura Stand] Toji Fushiguro",
+        "image": "https://gyazo.com/308a00ebbfd8b9b71ad76a0d10a3a133.gif",
+        "description": "A skill animation made in Sakura Stand for Toji Fushiguro"
+      },
+      {
+        "title": "[Sakura Stand] Herrscher of Human: Ego",
+        "image": "https://gyazo.com/1e66ef7daf491a800693ca2486cb71d5.gif",
+        "description": "A skill animation made in Sakura Stand for Herrscher of Human: Ego"
+      },
+      {
+        "title": "[Sakura Stand] Astolfo : Saber",
+        "image": "https://gyazo.com/ef7c72bebf1328b601c8a6138b2c1938.gif",
+        "description": "A skill animation made in Sakura Stand for Astolfo : Saber"
+      },
+      {
+        "title": "[Sakura Stand] Geto Suguru",
+        "image": "https://gyazo.com/21803694617e8dbc034151900ccb0a68.gif",
+        "description": "A skill animation made in Sakura Stand for Geto Suguru"
+      },
+      {
+        "title": "[Misc] Emotes",
+        "image": "https://gyazo.com/5ab45659e427003a777aad80b3fb7424.gif",
+        "description": "[Lucky Star] emote, a 1:30 minute duration animation"
+      },
+      {
+        "title": "[Misc] Occult",
+        "image": "https://gyazo.com/75555d824f129925b9505fcd8e698003.gif",
+        "description": "Okarun my goat"
+      },
+      {
+        "title": "[Misc] R15",
+        "image": "https://gyazo.com/04720dc9e7a42b2139ad167ae69727b6.gif",
+        "description": "An R15 work I own"
+      },
+      {
+        "title": "[Misc] Shotgun",
+        "image": "https://gyazo.com/f060256caa60d8b396acd4812a4751b0.gif",
+        "description": "Working with guns"
+      },
+      {
+        "title": "[Misc] Katana",
+        "image": "https://gyazo.com/0e89fca2fa7915d71a7a26c0b92ddedb.gif",
+        "description": "Working with swords"
+      },
+      {
+        "title": "[Misc] Spinning Kick",
+        "image": "https://gyazo.com/a38720a6ab840f542b7a3d4487ca452d.gif",
+        "description": "Leg work"
+      },
+      {
+        "title": "[Misc] Megumin",
+        "image": "https://gyazo.com/58f3bc82d03a7aab2b15e20ada042d32.gif",
+        "description": "I never finished Konosubarashi"
+      }
+    ]
+  },
+  "art": {
+    "title": "Arts",
+    "description": "Arts mainly created to be used as an in-game asset",
+    "keywords": ["Clip Studio Paint"],
+    "showcases": [
+      {
+        "title": "ETHRIX",
+        "image": "assets/games/ethrix.jpg",
+        "description": "All main arts are made by me. Please refer to playing or watching online medias to review other images",
+        "link": "#games",
+        "linkText": "See More →"
+      },
+      {
+        "title": "Sakura Stand",
+        "image": "assets/games/sakura_stand.jpg",
+        "description": "All main arts prior to 2024 are made by me. Please refer to playing or watching online medias to review other images",
+        "link": "#games",
+        "linkText": "See More →"
+      }
+    ]
+  },
+  "visual": {
+    "title": "Visual Effects",
+    "description": "VFXs of various type, whether for combat or general use",
+    "keywords": ["Particles","Beams","Meshes"],
+    "showcases": [
+      {
+        "title": "ETHRIX",
+        "image": "assets/games/ethrix.jpg",
+        "description": "All VFXs are made by me. Please refer to playing or watching online medias to review other images",
+        "link": "#games",
+        "linkText": "See More →"
+      },
+      {
+        "title": "Sakura Stand",
+        "image": "assets/games/sakura_stand.jpg",
+        "description": "All VFXs prior to 2024 are made by me. Please refer to playing or watching online medias to review other images",
+        "link": "#games",
+        "linkText": "See More →"
+      }
+    ]
+  },
+  "sound": {
+    "title": "Sound Effects",
+    "description": "SFXs of various type, whether for combat or general use",
+    "keywords": ["Premiere Pro"],
+    "showcases": [
+      {
+        "title": "ETHRIX",
+        "image": "assets/games/ethrix.jpg",
+        "description": "All SFXs are made by me. Please refer to playing or watching online medias to review other images",
+        "link": "#games",
+        "linkText": "See More →"
+      },
+      {
+        "title": "Sakura Stand",
+        "image": "assets/games/sakura_stand.jpg",
+        "description": "All SFXs prior to 2024 are made by me. Please refer to playing or watching online medias to review other images",
+        "link": "#games",
+        "linkText": "See More →"
+      }
+    ]
+  },
+  "model": {
+    "title": "Models",
+    "description": "Inorganic and organic objects made in 3D modelling",
+    "keywords": ["Blender", "Substance 3D Painter"],
+    "showcases": [
+      {
+        "title": "ETHRIX",
+        "image": "assets/games/ethrix.jpg",
+        "description": "All models are made by me. Please refer to playing or watching online medias to review other images",
+        "link": "#games",
+        "linkText": "See More →"
+      },
+      {
+        "title": "Sakura Stand",
+        "image": "assets/games/sakura_stand.jpg",
+        "description": "All models prior to 2024 are made by me. Please refer to playing or watching online medias to review other images",
+        "link": "#games",
+        "linkText": "See More →"
+      }
+    ]
+  },
+  "building": {
+    "title": "Buildings",
+    "description": "Structural construct of the workspace, environments, and spatial visual",
+    "keywords": ["Blender"],
+    "showcases": [
+      {
+        "title": "ETHRIX",
+        "image": "assets/games/ethrix.jpg",
+        "description": "The current workspaces and maps are made by me",
+        "link": "#games",
+        "linkText": "See More →"
+      }
+    ]
+  },
+  "ui": {
+    "title": "User Interfaces & Experiences",
+    "description": "The HUD design and implementation, along with its experience in mind",
+    "keywords": [],
+    "showcases": [
+      {
+        "title": "ETHRIX",
+        "image": "assets/games/ethrix.jpg",
+        "description": "All UI elements are made by me. Please refer to playing or watching online medias to review other images",
+        "link": "#games",
+        "linkText": "See More →"
+      },
+      {
+        "title": "Sakura Stand",
+        "image": "assets/games/sakura_stand.jpg",
+        "description": "All UI elements prior to 2024 are made by me. Please refer to playing or watching online medias to review other images",
+        "link": "#games",
+        "linkText": "See More →"
+      }
+    ]
+  },
+  "music": {
+    "title": "Music & Compositing",
+    "description": "Songs made by me as a practice. The latest of my studies, began in 2026",
+    "keywords": ["FLStudio"],
+    "showcases": [
+      {
+        "title": "Whatever Feels Right",
+        "image": "https://i.ytimg.com/vi/nKCONIIQNd8/hq720.jpg?sqp=-oaymwEgCOgCEMoBSFXyq4qpAxIIARUAAIhCGAFwAcABBrgC8xg=&rs=AOn4CLASNEdVcg_v-HUNXfpxcdGYAJ1g5w.jpg",
+        "description": "First ever song composed with my own two hands",
+        "link": "https://youtu.be/nKCONIIQNd8?si=kpfXrcuj3vV3QHmF",
+        "linkText": "Listen on YouTube →"
+      }
+    ]
+  }
+}

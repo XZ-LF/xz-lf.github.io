@@ -1,0 +1,28 @@
+[
+  {
+    "id": "ethrix",
+    "title": "Project ETHRIX",
+    "role": "Solo Full-Stack Developer",
+    "thumbnail": "assets/games/ethrix.jpg",
+    "description": "Fast-paced anime combat title utilizing Quick Time Events and Follow-Up Attacks",
+    "tags": ["Solo Development","Original"],
+    "link": "https://www.roblox.com/games/15411200769/ETHRIX"
+  },
+  {
+    "id": "sakura-stand",
+    "title": "Sakura Stand",
+    "role": "Full-Stack Developer (2021-2023)",
+    "thumbnail": "assets/games/sakura_stand.jpg",
+    "description": "Action experience featuring many anime characters, with some of the most intense grind you'll ever see",
+    "tags": ["Full-Stack","Anime"],
+    "link": "https://www.roblox.com/games/8534845015/Sakura-Stand"
+  },
+  {
+    "id": "soon",
+    "title": "Coming-Soon",
+    "role": "Solo Full-Stack Developer",
+    "thumbnail": "assets/games/Coming-Soon.jpg",
+    "description": "A ██████████ game inspired by ████ ████████, featuring great visuals and flexibility where players get to pick the right path for themselves",
+    "tags": ["Solo Development","Anime","████ ████████"]
+  }
+]
