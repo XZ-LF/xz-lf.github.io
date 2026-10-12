@@ -1,0 +1,12 @@
+[
+  { "id": "backend", "name": "Backend", "rank": "A+" },
+  { "id": "frontend", "name": "Frontend", "rank": "A+" },
+  { "id": "animation", "name": "Animation", "rank": "A+" },
+  { "id": "art", "name": "Art", "rank": "A" },
+  { "id": "visual", "name": "Visual Effects", "rank": "A" },
+  { "id": "sound", "name": "Sound Effects", "rank": "B+" },
+  { "id": "model", "name": "Model", "rank": "B+" },
+  { "id": "building", "name": "Building", "rank": "B" },
+  { "id": "ui", "name": "User Interface", "rank": "B" },
+  { "id": "music", "name": "Music", "rank": "D" }
+]

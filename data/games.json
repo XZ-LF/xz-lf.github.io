@@ -1,0 +1,29 @@
+[
+  {
+    "id": "ethrix",
+    "title": "Project ETHRIX",
+    "role": "Lead Scripter & Combat Mechanics",
+    "thumbnail": "assets/games/ethrix.jpg",
+    "description": "Fast-paced anime combat title with spatial query hitboxes, parry frames, and custom ragdoll knockdown physics.",
+    "tags": ["Combat Engine", "Luau", "Client Prediction"],
+    "link": "https://www.roblox.com"
+  },
+  {
+    "id": "sakura-star",
+    "title": "Sakura Star: Awakening",
+    "role": "Full-Stack Developer",
+    "thumbnail": "assets/games/sakura.jpg",
+    "description": "Action experience featuring custom character state machines, procedural camera shake, and animated skill cutscenes.",
+    "tags": ["Full-Stack", "Cutscenes", "VFX"],
+    "link": "https://www.roblox.com"
+  },
+  {
+    "id": "dungeon-midknight",
+    "title": "Midknight: Dungeons",
+    "role": "Gameplay Systems & Network Sync",
+    "thumbnail": "assets/games/midknight.jpg",
+    "description": "Co-op dungeon crawl with server-authoritative monster AI, replicated inventory, and item drops.",
+    "tags": ["Networking", "Dungeons", "ProfileService"],
+    "link": "https://www.roblox.com"
+  }
+]
