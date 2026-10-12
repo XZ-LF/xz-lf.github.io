@@ -7,14 +7,14 @@
       {
         "title": "ETHRIX",
         "image": "assets/games/ethrix.jpg",
-        "description": "Latest project where I applied this to",
+        "description": "All of the server frameworks are made by me",
         "link": "#games",
         "linkText": "See More →"
       },
       {
         "title": "Sakura Stand",
         "image": "assets/games/sakura_stand.jpg",
-        "description": "Past project where I applied this to",
+        "description": "All of the server frameworks are made by me",
         "link": "#games",
         "linkText": "See More →"
       }
@@ -28,14 +28,14 @@
       {
         "title": "ETHRIX",
         "image": "assets/games/ethrix.jpg",
-        "description": "Latest project where I applied this to",
+        "description": "All of the client frameworks are made by me",
         "link": "#games",
         "linkText": "See More →"
       },
       {
         "title": "Sakura Stand",
         "image": "assets/games/sakura_stand.jpg",
-        "description": "Past project where I applied this to",
+        "description": "All of the client frameworks are made by me",
         "link": "#games",
         "linkText": "See More →"
       }
@@ -44,12 +44,12 @@
   "animation": {
     "title": "Animations",
     "description": "Animations made with Moon Animator to be used in-game",
-    "keywords": ["Moon Animator","Cutscenes"],
+    "keywords": ["Moon Animator"],
     "showcases": [
       {
         "title": "ETHRIX",
         "image": "assets/games/ethrix.jpg",
-        "description": "All animations are all made by me. Please refer to playing or watching online medias to review other animations",
+        "description": "All animations are made by me. Please refer to playing or watching online medias to review other animations",
         "link": "#games",
         "linkText": "See More →"
       },
@@ -81,7 +81,7 @@
       {
         "title": "Sakura Stand",
         "image": "assets/games/sakura_stand.jpg",
-        "description": "All animations prior to 2024 are all made by me. Please refer to playing or watching online medias to review other animations",
+        "description": "All animations prior to 2024 are made by me. Please refer to playing or watching online medias to review other animations",
         "link": "#games",
         "linkText": "See More →"
       },
@@ -147,65 +147,136 @@
       }
     ]
   },
-  "modeling": {
-    "title": "3D Modeling & Texturing",
-    "description": "Game-ready weapon models, environment assets, and PBR textures.",
-    "keywords": ["Blender Low-Poly", "Substance 3D Painter", "SurfaceAppearance PBR", "UV Packing"],
+  "art": {
+    "title": "Arts",
+    "description": "Arts mainly created to be used as an in-game asset",
+    "keywords": ["Clip Studio Paint"],
     "showcases": [
       {
-        "title": "Stylized Katana & Scabbard",
-        "image": "assets/showcases/model_katana.jpg",
-        "description": "Optimized low-poly mesh featuring customized metalness and roughness maps."
-      }
-    ]
-  },
-  "vfx": {
-    "title": "VFX & Particles",
-    "description": "Stylized slash beams, energy auras, and hitspark emitters.",
-    "keywords": ["Beams & Trails", "Flipbook Textures", "Mesh Particle Emitters", "Distortion Effects"],
-    "showcases": [
-      {
-        "title": "Dimension Slash Aura",
-        "image": "assets/showcases/vfx_slash.jpg",
-        "description": "High-speed trail curves paired with localized light flashes and impact decals."
-      }
-    ]
-  },
-  "audio": {
-    "title": "Audio & Sound Design",
-    "description": "Punchy impact sound effects, environmental ambiances, and musical themes.",
-    "keywords": ["DAW Composition", "Sound Pitch Modulation", "Positional 3D Audio"],
-    "showcases": [
-      {
-        "title": "Dynamic Combat SFX Suite",
-        "image": "assets/showcases/audio_sfx.jpg",
-        "description": "Pitch-randomized sword clash sound clusters to prevent ear fatigue."
-      }
-    ]
-  },
-  "networking": {
-    "title": "Network Sync & Replication",
-    "description": "Low-bandwidth remote event wrappers and client prediction.",
-    "keywords": ["Buffer Packets", "Client Prediction", "Remote Verification", "Anti-Exploit Checks"],
-    "showcases": [
-      {
-        "title": "Buffer-Compressed Movement Packets",
-        "image": "assets/showcases/net_sync.jpg",
-        "description": "Luau buffer implementation compressing spatial coordinates to under 8 bytes.",
+        "title": "ETHRIX",
+        "image": "assets/games/ethrix.jpg",
+        "description": "All main arts are made by me. Please refer to playing or watching online medias to review other images",
         "link": "#games",
-        "linkText": "View in Production Games →"
+        "linkText": "See More →"
+      },
+      {
+        "title": "Sakura Stand",
+        "image": "assets/games/sakura_stand.jpg",
+        "description": "All main arts prior to 2024 are made by me. Please refer to playing or watching online medias to review other images",
+        "link": "#games",
+        "linkText": "See More →"
       }
     ]
   },
-  "optimization": {
-    "title": "Optimization & Performance",
-    "description": "Object pooling, memory leak diagnostics, and level LOD streaming.",
-    "keywords": ["Object Pooling", "MicroProfiler Analysis", "Instance Streaming", "Memory Audits"],
+  "visual": {
+    "title": "Visual Effects",
+    "description": "VFXs of various type, whether for combat or general use",
+    "keywords": ["Particles","Beams","Meshes"],
     "showcases": [
       {
-        "title": "Projectile Recycling Pool",
-        "image": "assets/showcases/opt_pool.jpg",
-        "description": "Pre-allocated bullet and magic projectile cache eliminating garbage collector spikes."
+        "title": "ETHRIX",
+        "image": "assets/games/ethrix.jpg",
+        "description": "All VFXs are made by me. Please refer to playing or watching online medias to review other images",
+        "link": "#games",
+        "linkText": "See More →"
+      },
+      {
+        "title": "Sakura Stand",
+        "image": "assets/games/sakura_stand.jpg",
+        "description": "All VFXs prior to 2024 are made by me. Please refer to playing or watching online medias to review other images",
+        "link": "#games",
+        "linkText": "See More →"
+      }
+    ]
+  },
+  "sound": {
+    "title": "Sound Effects",
+    "description": "SFXs of various type, whether for combat or general use",
+    "keywords": ["Premiere Pro"],
+    "showcases": [
+      {
+        "title": "ETHRIX",
+        "image": "assets/games/ethrix.jpg",
+        "description": "All SFXs are made by me. Please refer to playing or watching online medias to review other images",
+        "link": "#games",
+        "linkText": "See More →"
+      },
+      {
+        "title": "Sakura Stand",
+        "image": "assets/games/sakura_stand.jpg",
+        "description": "All SFXs prior to 2024 are made by me. Please refer to playing or watching online medias to review other images",
+        "link": "#games",
+        "linkText": "See More →"
+      }
+    ]
+  },
+  "model": {
+    "title": "Models",
+    "description": "Inorganic and organic objects made in 3D modelling",
+    "keywords": ["Blender", "Substance 3D Painter"],
+    "showcases": [
+      {
+        "title": "ETHRIX",
+        "image": "assets/games/ethrix.jpg",
+        "description": "All models are made by me. Please refer to playing or watching online medias to review other images",
+        "link": "#games",
+        "linkText": "See More →"
+      },
+      {
+        "title": "Sakura Stand",
+        "image": "assets/games/sakura_stand.jpg",
+        "description": "All models prior to 2024 are made by me. Please refer to playing or watching online medias to review other images",
+        "link": "#games",
+        "linkText": "See More →"
+      }
+    ]
+  },
+  "building": {
+    "title": "Buildings",
+    "description": "Structural construct of the workspace, environments, and spatial visual",
+    "keywords": ["Blender"],
+    "showcases": [
+      {
+        "title": "ETHRIX",
+        "image": "assets/games/ethrix.jpg",
+        "description": "The current workspaces and maps are made by me",
+        "link": "#games",
+        "linkText": "See More →"
+      }
+    ]
+  },
+  "ui": {
+    "title": "User Interfaces & Experiences",
+    "description": "The HUD design and implementation, along with its experience in mind",
+    "keywords": [],
+    "showcases": [
+      {
+        "title": "ETHRIX",
+        "image": "assets/games/ethrix.jpg",
+        "description": "All UI elements are made by me. Please refer to playing or watching online medias to review other images",
+        "link": "#games",
+        "linkText": "See More →"
+      },
+      {
+        "title": "Sakura Stand",
+        "image": "assets/games/sakura_stand.jpg",
+        "description": "All UI elements prior to 2024 are made by me. Please refer to playing or watching online medias to review other images",
+        "link": "#games",
+        "linkText": "See More →"
+      }
+    ]
+  },
+  "music": {
+    "title": "Music & Compositing",
+    "description": "Songs made by me as a practice. The latest of my studies, began in 2026",
+    "keywords": ["FLStudio"],
+    "showcases": [
+      {
+        "title": "Whatever Feels Right",
+        "image": "https://i.ytimg.com/vi/nKCONIIQNd8/hq720.jpg?sqp=-oaymwEgCOgCEMoBSFXyq4qpAxIIARUAAIhCGAFwAcABBrgC8xg=&rs=AOn4CLASNEdVcg_v-HUNXfpxcdGYAJ1g5w.jpg",
+        "description": "First ever song composed with my own two hands",
+        "link": "https://youtu.be/nKCONIIQNd8?si=kpfXrcuj3vV3QHmF",
+        "linkText": "Listen on YouTube →"
       }
     ]
   }

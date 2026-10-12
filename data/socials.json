@@ -1,0 +1,30 @@
+[
+  {
+    "id": "roblox",
+    "title": "Roblox Profile",
+    "description": "Check out my drip on Roblox",
+    "icon": "🟥",
+    "link": "https://www.roblox.com/users/277842864/profile"
+  },
+  {
+    "id": "youtube",
+    "title": "YouTube",
+    "description": "I post whatever I make",
+    "icon": "▶️",
+    "link": "https://www.youtube.com/@underfate"
+  },
+  {
+    "id": "github",
+    "title": "GitHub Profile",
+    "description": "Feel free to copy whatever I have public",
+    "icon": "💻",
+    "link": "https://github.com/XZ-LF"
+  },
+  {
+    "id": "pertinax",
+    "title": "[Pertinax] Discord Community",
+    "description": "Community server for ETHRIX's studio, Perti nax",
+    "icon": "💬",
+    "link": "https://discord.gg/uwX6EtKDJp"
+  }
+]

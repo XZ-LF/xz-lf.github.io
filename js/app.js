@@ -4,56 +4,68 @@ let gamesData = [];
 let categoriesData = {};
 let ranksData = {};
 let othersData = [];
+let socialsData = [];
 
 /* Built-in fallback data */
 const fallbackRanks = {
-  "E": { level: 1, title: "Complete Noob", description: "Just started out; knows bare fundamentals." },
-  "E+": { level: 2, title: "Novice", description: "Grasping basic principles and syntax." },
-  "D": { level: 3, title: "Beginner", description: "Can build simple scripts and models with guidance." },
-  "D+": { level: 4, title: "Apprentice", description: "Understands core APIs, events, and common patterns." },
-  "C": { level: 5, title: "Intermediate", description: "Builds functional features and mechanics independently." },
-  "C+": { level: 6, title: "Competent", description: "Solid grasp of client-server replication and clean structure." },
-  "B": { level: 7, title: "Skilled", description: "Reliable and modular code, good asset pipelines." },
-  "B+": { level: 8, title: "Advanced", description: "Comfortable with math, state machines, and tuning." },
-  "A": { level: 9, title: "Expert", description: "Deep architecture, MicroProfiler mastery, highly optimized." },
-  "A+": { level: 10, title: "Proficient", description: "Production-grade execution, robust and battle-tested." },
-  "S": { level: 11, title: "Elite", description: "Near platform-ceiling mastery, custom tooling, buffer wizardry." },
-  "SS": { level: 12, title: "Legendary", description: "Exceptional standard of excellence across complex projects." },
-  "SSS": { level: 13, title: "God Tier", description: "Absolute peak domain mastery and effortless execution." }
+  "E": { level: 1, title: "Complete Noob", description: "Just starting out; learning the bare fundamentals." },
+  "E+": { level: 2, title: "Novice", description: "Understands basic concepts and foundational workflows." },
+  "D": { level: 3, title: "Beginner", description: "Can produce simple work and follow along with guidance." },
+  "D+": { level: 4, title: "Apprentice", description: "Familiar with core tools, common conventions, and standard workflows." },
+  "C": { level: 5, title: "Intermediate", description: "Creates functional, standalone work independently without supervision." },
+  "C+": { level: 6, title: "Competent", description: "Consistently delivers solid results with clean structure and good practices." },
+  "B": { level: 7, title: "Skilled", description: "Well-rounded and dependable; handles complex tasks with quality and speed." },
+  "B+": { level: 8, title: "Advanced", description: "Deep technical proficiency; solves tricky edge cases and refines details." },
+  "A": { level: 9, title: "Expert", description: "High-level craftsmanship; sets benchmarks for efficiency, quality, and standards." },
+  "A+": { level: 10, title: "Proficient", description: "Production-grade execution; delivers polished, battle-tested work at scale." },
+  "S": { level: 11, title: "Elite", description: "Top-tier expertise; invents custom workflows and pushes platform limits." },
+  "SS": { level: 12, title: "Legendary", description: "Exceptional standard of creative and technical excellence across major projects." },
+  "SSS": { level: 13, title: "God Tier", description: "Absolute peak domain mastery, effortless execution, and visionary innovation." }
 };
 
 const fallbackStats = [
-  { id: "combat", name: "Combat Systems", rank: "SSS" },
-  { id: "luau", name: "Luau Scripting", rank: "SS" },
-  { id: "uiux", name: "UI & Interfaces", rank: "A+" },
-  { id: "modeling", name: "3D & Texturing", rank: "A" },
-  { id: "vfx", name: "VFX & Particles", rank: "S" },
-  { id: "audio", name: "Audio & Sound", rank: "B+" },
-  { id: "networking", name: "Network Sync", rank: "SS" },
-  { id: "optimization", name: "Optimization", rank: "S" }
+  { id: "backend", name: "Backend", rank: "A+" },
+  { id: "frontend", name: "Frontend", rank: "A+" },
+  { id: "animation", name: "Animation", rank: "A+" },
+  { id: "art", name: "Art", rank: "A" },
+  { id: "visual", name: "Visual Effect", rank: "A" },
+  { id: "sound", name: "Sound Effect", rank: "B+" },
+  { id: "model", name: "Model", rank: "B+" },
+  { id: "building", name: "Building", rank: "B" },
+  { id: "ui", name: "User Interface", rank: "B" },
+  { id: "music", name: "Music", rank: "D" }
 ];
 
-const fallbackOthers = [
+const fallbackOthers = [];
+
+const fallbackSocials = [
   {
-    title: "Anime Particle Shader System",
-    tag: "VFX / Blender",
-    image: "assets/others/vfx_demo.jpg",
-    description: "Custom beam and particle emitter stylings tested for anime fighting game impacts.",
-    link: "https://xz-lf.github.io"
+    id: "roblox",
+    title: "Roblox Profile & Groups",
+    description: "Check out my inventory, creations, and development groups.",
+    icon: "🟥",
+    link: "https://www.roblox.com"
   },
   {
-    title: "PBR Katana & Props",
-    tag: "3D Modeling",
-    image: "assets/others/katana_props.jpg",
-    description: "Low-poly weapon models textured using Substance 3D Painter anchor points and curvature masks.",
-    link: "https://xz-lf.github.io"
+    id: "youtube",
+    title: "YouTube Devlogs",
+    description: "Showcases, alpha game trailers, and character skill previews.",
+    icon: "▶️",
+    link: "https://youtube.com"
   },
   {
-    title: "Battle Theme Composition",
-    tag: "OST / Audio",
-    image: "assets/others/ost_demo.jpg",
-    description: "Orchestral battle tracks produced in FL Studio featuring harmonic piano chords and percussion.",
-    link: "https://xz-lf.github.io"
+    id: "github",
+    title: "GitHub Profile",
+    description: "Open source utility modules, web tools, and repositories.",
+    icon: "💻",
+    link: "https://github.com"
+  },
+  {
+    id: "discord",
+    title: "Discord Community",
+    description: "Join the community server to test upcoming updates.",
+    icon: "💬",
+    link: "https://discord.com"
   }
 ];
 
@@ -64,6 +76,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   renderGames();
   renderStatsCards();
   renderOthers();
+  renderSocials();
   initRadarChart();
   initKeyboardListeners();
 
@@ -74,23 +87,26 @@ document.addEventListener("DOMContentLoaded", async () => {
 /* ================= DATA LOADING ================= */
 async function loadData() {
   try {
-    const [resGames, resStats, resCats, resRanks, resOthers] = await Promise.all([
+    const [resGames, resStats, resCats, resRanks, resOthers, resSocials] = await Promise.all([
       fetch("data/games.json"),
       fetch("data/stats.json"),
       fetch("data/categories.json"),
       fetch("data/ranks.json"),
-      fetch("data/others.json")
+      fetch("data/others.json"),
+      fetch("data/socials.json")
     ]);
     gamesData = await resGames.json();
     statsData = await resStats.json();
     categoriesData = await resCats.json();
     ranksData = await resRanks.json();
     othersData = await resOthers.json();
+    socialsData = await resSocials.json();
   } catch (err) {
     console.warn("Using fallback local data (fetch blocked or files loading locally):", err);
     statsData = fallbackStats;
     ranksData = fallbackRanks;
     othersData = fallbackOthers;
+    socialsData = fallbackSocials;
   }
 }
 
@@ -200,24 +216,28 @@ function renderGames() {
   if (!container || !gamesData.length) return;
 
   container.innerHTML = gamesData
-    .map(
-      game => `
-    <div class="game-card">
-      <div class="card-media">
-        <img src="${game.thumbnail}" onerror="this.src='https://placehold.co/600x340/1a1c23/ffffff?text=${encodeURIComponent(game.title)}'" alt="${game.title}" class="zoomable-img" onclick="openLightbox(this.src, '${escapeQuotes(game.title)}', '${escapeQuotes(game.description)}')" />
-      </div>
-      <div class="card-body">
-        <h3>${game.title}</h3>
-        <span class="card-role">${game.role}</span>
-        <p>${game.description}</p>
-        <div class="card-tags">
-          ${game.tags.map(t => `<span class="tag">${t}</span>`).join("")}
+    .map(game => {
+      let linkHtml = "";
+      if (game.link) {
+        linkHtml = `<a href="${game.link}" target="_blank" class="card-link">Play on Roblox ↗</a>`;
+      }
+
+      return `
+      <div class="game-card">
+        <div class="card-media">
+          <img src="${game.thumbnail}" onerror="this.src='https://placehold.co/600x340/1a1c23/ffffff?text=${encodeURIComponent(game.title)}'" alt="${game.title}" class="zoomable-img" onclick="openLightbox(this.src, '${escapeQuotes(game.title)}', '${escapeQuotes(game.description)}')" />
         </div>
-        <a href="${game.link}" target="_blank" class="card-link">Play on Roblox ↗</a>
-      </div>
-    </div>
-  `
-    )
+        <div class="card-body">
+          <h3>${game.title}</h3>
+          <span class="card-role">${game.role}</span>
+          <p>${game.description}</p>
+          <div class="card-tags">
+            ${game.tags.map(t => `<span class="tag">${t}</span>`).join("")}
+          </div>
+          ${linkHtml}
+        </div>
+      </div>`;
+    })
     .join("");
 }
 
@@ -242,6 +262,33 @@ function renderOthers() {
     </div>
   `
     )
+    .join("");
+}
+
+/* ================= RENDER SOCIALS ================= */
+function renderSocials() {
+  const container = document.getElementById("socialsContainer");
+  if (!container || !socialsData.length) return;
+
+  container.innerHTML = socialsData
+    .map(item => {
+      // Handles both emoji characters and image file/URL icons
+      const isImg = item.icon && (item.icon.includes("/") || item.icon.includes("."));
+      const iconHtml = isImg
+        ? `<img src="${item.icon}" alt="${item.title}" style="width:28px;height:28px;object-fit:contain;">`
+        : (item.icon || "🌐");
+
+      return `
+      <a href="${item.link || '#'}" target="_blank" class="social-card">
+        <div class="social-icon">${iconHtml}</div>
+        <div class="social-details">
+          <h3>${item.title}</h3>
+          <p>${item.description}</p>
+        </div>
+        <span class="social-arrow">↗</span>
+      </a>
+      `;
+    })
     .join("");
 }
 

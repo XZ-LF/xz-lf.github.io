@@ -2,28 +2,27 @@
   {
     "id": "ethrix",
     "title": "Project ETHRIX",
-    "role": "Lead Scripter & Combat Mechanics",
+    "role": "Solo Full-Stack Developer",
     "thumbnail": "assets/games/ethrix.jpg",
-    "description": "Fast-paced anime combat title with spatial query hitboxes, parry frames, and custom ragdoll knockdown physics.",
-    "tags": ["Combat Engine", "Luau", "Client Prediction"],
-    "link": "https://www.roblox.com"
+    "description": "Fast-paced anime combat title utilizing Quick Time Events and Follow-Up Attacks",
+    "tags": ["Solo Development","Original"],
+    "link": "https://www.roblox.com/games/15411200769/ETHRIX"
   },
   {
-    "id": "sakura-star",
-    "title": "Sakura Star: Awakening",
-    "role": "Full-Stack Developer",
-    "thumbnail": "assets/games/sakura.jpg",
-    "description": "Action experience featuring custom character state machines, procedural camera shake, and animated skill cutscenes.",
-    "tags": ["Full-Stack", "Cutscenes", "VFX"],
-    "link": "https://www.roblox.com"
+    "id": "sakura-stand",
+    "title": "Sakura Stand",
+    "role": "Full-Stack Developer (2021-2023)",
+    "thumbnail": "assets/games/sakura_stand.jpg",
+    "description": "Action experience featuring many anime characters, with some of the most intense grind you'll ever see",
+    "tags": ["Full-Stack","Anime"],
+    "link": "https://www.roblox.com/games/8534845015/Sakura-Stand"
   },
   {
-    "id": "dungeon-midknight",
-    "title": "Midknight: Dungeons",
-    "role": "Gameplay Systems & Network Sync",
-    "thumbnail": "assets/games/midknight.jpg",
-    "description": "Co-op dungeon crawl with server-authoritative monster AI, replicated inventory, and item drops.",
-    "tags": ["Networking", "Dungeons", "ProfileService"],
-    "link": "https://www.roblox.com"
+    "id": "soon",
+    "title": "Coming-Soon",
+    "role": "Solo Full-Stack Developer",
+    "thumbnail": "assets/games/Coming-Soon.jpg",
+    "description": "A ██████████ game inspired by ████ ████████, featuring great visuals and flexibility where players get to pick the right path for themselves",
+    "tags": ["Solo Development","Anime","████ ████████"]
   }
 ]

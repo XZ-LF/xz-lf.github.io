@@ -1,26 +1,3 @@
 [
-  {
-    "id": "anime-vfx",
-    "title": "Anime Particle Shader System",
-    "tag": "VFX / Blender",
-    "image": "assets/others/vfx_demo.jpg",
-    "description": "Custom beam and particle emitter stylings tested for anime fighting game impacts.",
-    "link": "https://xz-lf.github.io"
-  },
-  {
-    "id": "pbr-katana",
-    "title": "PBR Katana & Props",
-    "tag": "3D Modeling",
-    "image": "assets/others/katana_props.jpg",
-    "description": "Low-poly weapon models textured using Substance 3D Painter anchor points and curvature masks.",
-    "link": "https://xz-lf.github.io"
-  },
-  {
-    "id": "battle-ost",
-    "title": "Battle Theme Composition",
-    "tag": "OST / Audio",
-    "image": "assets/others/ost_demo.jpg",
-    "description": "Orchestral battle tracks produced in FL Studio featuring harmonic piano chords and percussion.",
-    "link": "https://xz-lf.github.io"
-  }
+
 ]
