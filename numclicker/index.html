@@ -1,0 +1,2395 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Num Clicker — Cosmic Purple Incremental</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Orbitron:wght@600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Orbitron', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            num: {
+              950: '#090414',
+              900: '#120826',
+              800: '#1e0f3d',
+              700: '#2e165e',
+              600: '#4c1d95',
+              500: '#7c3aed',
+              400: '#a855f7',
+              300: '#c084fc',
+              200: '#e9d5ff',
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    :root {
+      --num-mask-url: none;
+      --glint-speed: 2.6s;
+    }
+
+    * {
+      user-select: none;
+      -webkit-user-select: none;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      background-color: #090414;
+      color: #f3e8ff;
+      overflow: hidden;
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* Cosmic Purple Background Grid & Nebula */
+    .cosmic-bg {
+      background:
+        radial-gradient(circle at 35% 45%, rgba(139, 92, 246, 0.16) 0%, rgba(76, 29, 149, 0.06) 40%, transparent 70%),
+        radial-gradient(circle at 80% 20%, rgba(217, 70, 239, 0.1) 0%, transparent 50%),
+        linear-gradient(180deg, #090414 0%, #120826 50%, #0b0418 100%);
+    }
+
+    .cosmic-grid {
+      background-size: 48px 48px;
+      background-image:
+        linear-gradient(to right, rgba(168, 85, 247, 0.06) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(168, 85, 247, 0.06) 1px, transparent 1px);
+    }
+
+    /* Custom Scrollbar for Upgrade Drawer */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(18, 8, 38, 0.6);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(168, 85, 247, 0.4);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(192, 132, 252, 0.7);
+    }
+
+    /* ==========================================================================
+       NUM CLICK TARGET & GLINT FILTER ARCHITECTURE
+       Supports 10 Tiers (0: Base -> 9: NUMWATERONE)
+       Works on both default SVG placeholder and custom uploaded images!
+       ========================================================================== */
+
+    .num-stage-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.08s cubic-bezier(0.34, 1.56, 0.64, 1);
+      will-change: transform;
+    }
+
+    .num-stage-wrapper:hover {
+      transform: scale(1.04);
+    }
+
+    .num-stage-wrapper.clicked {
+      transform: scale(0.91) rotate(-2deg);
+    }
+
+    /* The Masked Glint Overlay Layer */
+    .num-glint-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      border-radius: 28px;
+      overflow: hidden;
+      z-index: 20;
+    }
+
+    /* When pixel-masking is available (Data URLs / SVGs), clip strictly to image alpha */
+    .num-glint-overlay.alpha-masked {
+      -webkit-mask-image: var(--num-mask-url);
+      mask-image: var(--num-mask-url);
+      -webkit-mask-size: contain;
+      mask-size: contain;
+      -webkit-mask-repeat: no-repeat;
+      mask-repeat: no-repeat;
+      -webkit-mask-position: center;
+      mask-position: center;
+      border-radius: 0;
+    }
+
+    /* Animated Diagonal Glint Beam */
+    .num-glint-beam {
+      position: absolute;
+      top: -60%;
+      left: -120%;
+      width: 85%;
+      height: 220%;
+      transform: rotate(25deg);
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    /* Ambient sheen across the surface */
+    .num-surface-tint {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.4s ease, background 0.4s ease;
+    }
+
+    @keyframes glintSweep {
+      0% {
+        left: -130%;
+      }
+      45%, 100% {
+        left: 165%;
+      }
+    }
+
+    @keyframes glintSweepFast {
+      0% {
+        left: -130%;
+      }
+      60%, 100% {
+        left: 165%;
+      }
+    }
+
+    @keyframes rainbowHue {
+      0% { filter: hue-rotate(0deg) drop-shadow(0 0 28px rgba(244, 63, 94, 0.8)); }
+      33% { filter: hue-rotate(120deg) drop-shadow(0 0 28px rgba(52, 211, 153, 0.8)); }
+      66% { filter: hue-rotate(240deg) drop-shadow(0 0 28px rgba(96, 165, 250, 0.8)); }
+      100% { filter: hue-rotate(360deg) drop-shadow(0 0 28px rgba(244, 63, 94, 0.8)); }
+    }
+
+    @keyframes neonRGBPulse {
+      0%, 100% {
+        filter:
+          drop-shadow(-6px -4px 14px #ff0055)
+          drop-shadow(6px -4px 14px #00ff66)
+          drop-shadow(0px 8px 18px #0066ff)
+          brightness(1.12) contrast(1.12);
+      }
+      33% {
+        filter:
+          drop-shadow(6px -4px 14px #ff0055)
+          drop-shadow(0px 8px 14px #00ff66)
+          drop-shadow(-6px -4px 18px #0066ff)
+          brightness(1.16) contrast(1.15);
+      }
+      66% {
+        filter:
+          drop-shadow(0px 8px 14px #ff0055)
+          drop-shadow(-6px -4px 14px #00ff66)
+          drop-shadow(6px -4px 18px #0066ff)
+          brightness(1.14) contrast(1.12);
+      }
+    }
+
+    @keyframes numwateronePulse {
+      0%, 100% {
+        filter:
+          drop-shadow(0 0 18px #c084fc)
+          drop-shadow(0 0 38px #9333ea)
+          drop-shadow(0 0 65px #6b21a8)
+          brightness(1.15) saturate(1.35);
+      }
+      50% {
+        filter:
+          drop-shadow(0 0 25px #f0abfc)
+          drop-shadow(0 0 50px #a855f7)
+          drop-shadow(0 0 85px #7e22ce)
+          brightness(1.25) saturate(1.5);
+      }
+    }
+
+    @keyframes spinSlow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes spinReverse {
+      from { transform: rotate(360deg); }
+      to { transform: rotate(0deg); }
+    }
+
+    /* TIER 0: Base Num */
+    .glint-tier-0 .num-main-img {
+      filter: drop-shadow(0 0 20px rgba(168, 85, 247, 0.45));
+    }
+
+    /* TIER 1: Silver Glint */
+    .glint-tier-1 .num-main-img {
+      filter: saturate(0.75) contrast(1.12) brightness(1.08) drop-shadow(0 0 24px rgba(226, 232, 240, 0.75));
+    }
+    .glint-tier-1 .num-surface-tint {
+      opacity: 0.35;
+      background: linear-gradient(135deg, rgba(255,255,255,0.45), rgba(148,163,184,0.2), rgba(241,245,249,0.4));
+      mix-blend-mode: color-dodge;
+    }
+    .glint-tier-1 .num-glint-beam {
+      opacity: 1;
+      background: linear-gradient(90deg, transparent 0%, rgba(226, 232, 240, 0.15) 30%, rgba(255, 255, 255, 0.95) 50%, rgba(203, 213, 225, 0.2) 70%, transparent 100%);
+      mix-blend-mode: screen;
+      animation: glintSweep 2.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+
+    /* TIER 2: Gold Glint (Yellow) */
+    .glint-tier-2 .num-main-img {
+      filter: sepia(0.35) saturate(1.6) brightness(1.08) drop-shadow(0 0 28px rgba(250, 204, 21, 0.85));
+    }
+    .glint-tier-2 .num-surface-tint {
+      opacity: 0.45;
+      background: linear-gradient(135deg, rgba(254, 240, 138, 0.5), rgba(234, 179, 8, 0.35), rgba(250, 204, 21, 0.4));
+      mix-blend-mode: overlay;
+    }
+    .glint-tier-2 .num-glint-beam {
+      opacity: 1;
+      background: linear-gradient(90deg, transparent 0%, rgba(250, 204, 21, 0.2) 25%, rgba(254, 249, 195, 1) 50%, rgba(234, 179, 8, 0.35) 75%, transparent 100%);
+      mix-blend-mode: screen;
+      animation: glintSweep 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+
+    /* TIER 3: Diamond Glint (Light Blue) */
+    .glint-tier-3 .num-main-img {
+      filter: contrast(1.15) brightness(1.14) drop-shadow(0 0 30px rgba(125, 211, 252, 0.9)) drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
+    }
+    .glint-tier-3 .num-surface-tint {
+      opacity: 0.5;
+      background: linear-gradient(135deg, rgba(224, 242, 254, 0.65), rgba(56, 189, 248, 0.35), rgba(186, 230, 253, 0.55));
+      mix-blend-mode: color-dodge;
+    }
+    .glint-tier-3 .num-glint-beam {
+      opacity: 1;
+      background: linear-gradient(90deg, transparent 0%, rgba(56, 189, 248, 0.25) 20%, rgba(224, 242, 254, 1) 46%, rgba(255, 255, 255, 1) 50%, rgba(125, 211, 252, 0.9) 56%, transparent 100%);
+      mix-blend-mode: screen;
+      animation: glintSweep 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+
+    /* TIER 4: Emerald Glint (Green) */
+    .glint-tier-4 .num-main-img {
+      filter: contrast(1.12) brightness(1.08) drop-shadow(0 0 32px rgba(52, 211, 153, 0.9));
+    }
+    .glint-tier-4 .num-surface-tint {
+      opacity: 0.52;
+      background: linear-gradient(135deg, rgba(167, 243, 208, 0.5), rgba(16, 185, 129, 0.45), rgba(5, 150, 105, 0.35));
+      mix-blend-mode: color-dodge;
+    }
+    .glint-tier-4 .num-glint-beam {
+      opacity: 1;
+      background: linear-gradient(90deg, transparent 0%, rgba(16, 185, 129, 0.25) 25%, rgba(209, 250, 229, 1) 50%, rgba(52, 211, 153, 0.4) 75%, transparent 100%);
+      mix-blend-mode: screen;
+      animation: glintSweep 2.1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+
+    /* TIER 5: Sapphire Glint (Blue) */
+    .glint-tier-5 .num-main-img {
+      filter: contrast(1.15) brightness(1.1) drop-shadow(0 0 34px rgba(59, 130, 246, 0.95));
+    }
+    .glint-tier-5 .num-surface-tint {
+      opacity: 0.55;
+      background: linear-gradient(135deg, rgba(147, 197, 253, 0.5), rgba(37, 99, 235, 0.5), rgba(29, 78, 216, 0.4));
+      mix-blend-mode: color-dodge;
+    }
+    .glint-tier-5 .num-glint-beam {
+      opacity: 1;
+      background: linear-gradient(90deg, transparent 0%, rgba(37, 99, 235, 0.3) 25%, rgba(219, 234, 254, 1) 50%, rgba(59, 130, 246, 0.45) 75%, transparent 100%);
+      mix-blend-mode: screen;
+      animation: glintSweep 2.0s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+
+    /* TIER 6: Ruby Glint (Red) */
+    .glint-tier-6 .num-main-img {
+      filter: contrast(1.16) brightness(1.08) drop-shadow(0 0 36px rgba(244, 63, 94, 0.95));
+    }
+    .glint-tier-6 .num-surface-tint {
+      opacity: 0.55;
+      background: linear-gradient(135deg, rgba(254, 205, 211, 0.5), rgba(225, 29, 72, 0.5), rgba(159, 18, 57, 0.4));
+      mix-blend-mode: color-dodge;
+    }
+    .glint-tier-6 .num-glint-beam {
+      opacity: 1;
+      background: linear-gradient(90deg, transparent 0%, rgba(225, 29, 72, 0.35) 25%, rgba(255, 228, 230, 1) 50%, rgba(244, 63, 94, 0.5) 75%, transparent 100%);
+      mix-blend-mode: screen;
+      animation: glintSweep 1.85s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+
+    /* TIER 7: Rainbow Glint */
+    .glint-tier-7 .num-main-img {
+      animation: rainbowHue 4s linear infinite;
+    }
+    .glint-tier-7 .num-surface-tint {
+      opacity: 0.65;
+      background: linear-gradient(135deg,
+        rgba(255, 0, 85, 0.45) 0%,
+        rgba(255, 165, 0, 0.45) 20%,
+        rgba(255, 255, 0, 0.45) 40%,
+        rgba(0, 255, 128, 0.45) 60%,
+        rgba(0, 191, 255, 0.45) 80%,
+        rgba(186, 85, 211, 0.45) 100%
+      );
+      mix-blend-mode: color-dodge;
+    }
+    .glint-tier-7 .num-glint-beam {
+      opacity: 1;
+      width: 105%;
+      background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255, 0, 102, 0.75) 20%,
+        rgba(255, 204, 0, 0.85) 35%,
+        rgba(51, 255, 153, 0.95) 50%,
+        rgba(51, 153, 255, 0.85) 65%,
+        rgba(204, 51, 255, 0.75) 80%,
+        transparent 100%
+      );
+      mix-blend-mode: screen;
+      animation: glintSweepFast 1.6s linear infinite;
+    }
+
+    /* TIER 8: Neon Glint (Red, Green, and Blue) */
+    .glint-tier-8 .num-main-img {
+      animation: neonRGBPulse 2.2s ease-in-out infinite;
+    }
+    .glint-tier-8 .num-surface-tint {
+      opacity: 0.7;
+      background: linear-gradient(125deg,
+        rgba(255, 0, 68, 0.55) 0%,
+        rgba(0, 255, 102, 0.55) 50%,
+        rgba(0, 102, 255, 0.55) 100%
+      );
+      mix-blend-mode: overlay;
+    }
+    .glint-tier-8 .num-glint-beam {
+      opacity: 1;
+      width: 100%;
+      background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255, 0, 68, 0.9) 26%,
+        rgba(255, 255, 255, 1) 33%,
+        rgba(0, 255, 102, 0.95) 50%,
+        rgba(255, 255, 255, 1) 66%,
+        rgba(0, 102, 255, 0.95) 74%,
+        transparent 100%
+      );
+      mix-blend-mode: screen;
+      animation: glintSweepFast 1.35s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+
+    /* TIER 9: NUMWATERONE (Ultimate Purple Tier) */
+    .glint-tier-9 .num-main-img {
+      animation: numwateronePulse 2s ease-in-out infinite;
+    }
+    .glint-tier-9 .num-surface-tint {
+      opacity: 0.75;
+      background: radial-gradient(circle at 30% 30%, rgba(240, 171, 252, 0.65), rgba(168, 85, 247, 0.5) 50%, rgba(88, 28, 135, 0.6) 100%);
+      mix-blend-mode: color-dodge;
+    }
+    .glint-tier-9 .num-glint-beam {
+      opacity: 1;
+      width: 115%;
+      background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(126, 34, 206, 0.5) 18%,
+        rgba(192, 132, 252, 0.95) 38%,
+        rgba(255, 255, 255, 1) 50%,
+        rgba(232, 121, 249, 0.95) 62%,
+        rgba(147, 51, 234, 0.5) 82%,
+        transparent 100%
+      );
+      mix-blend-mode: screen;
+      animation: glintSweepFast 1.15s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+
+    /* Floating Click Numbers */
+    @keyframes floatUpFade {
+      0% {
+        opacity: 1;
+        transform: translateY(0) scale(0.85);
+      }
+      20% {
+        transform: translateY(-18px) scale(1.08);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-95px) scale(0.95);
+      }
+    }
+
+    .floating-num-text {
+      position: fixed;
+      pointer-events: none;
+      z-index: 60;
+      animation: floatUpFade 0.95s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Lucky Floating Anomaly Orb */
+    @keyframes orbBob {
+      0%, 100% { transform: translateY(0px) scale(1); }
+      50% { transform: translateY(-12px) scale(1.07); }
+    }
+    .lucky-orb {
+      animation: orbBob 2.2s ease-in-out infinite;
+    }
+
+    /* NUMWATERONE Finale Big Text Animation */
+    @keyframes numwateroneTitlePulse {
+      0%, 100% {
+        transform: scale(1);
+        text-shadow: 0 0 20px #e879f9, 0 0 45px #a855f7, 0 0 90px #6b21a8;
+      }
+      50% {
+        transform: scale(1.05);
+        text-shadow: 0 0 30px #ffffff, 0 0 65px #d946ef, 0 0 120px #9333ea;
+      }
+    }
+    .numwaterone-big-title {
+      animation: numwateroneTitlePulse 1.8s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body class="cosmic-bg h-screen max-h-screen w-screen overflow-hidden flex flex-col select-none">
+
+  <!-- =========================================================================
+       TOP NAVIGATION & HUD BAR
+       ========================================================================= -->
+  <header class="relative z-30 h-16 shrink-0 px-4 lg:px-6 border-b border-purple-500/25 bg-num-950/80 backdrop-blur-md flex items-center justify-between gap-3">
+    <!-- Brand & Active Glint Badge -->
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-fuchsia-600 flex items-center justify-center shadow-lg shadow-purple-600/30 border border-purple-300/30">
+        <i class="fa-solid fa-gem text-white text-lg"></i>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="font-display font-extrabold text-lg sm:text-xl tracking-wider bg-gradient-to-r from-purple-200 via-fuchsia-300 to-purple-400 bg-clip-text text-transparent">
+            NUM CLICKER
+          </h1>
+          <span id="header-tier-badge" class="text-[11px] font-mono uppercase px-2 py-0.5 rounded-full bg-purple-900/70 border border-purple-400/40 text-purple-200">
+            TIER 0 • BASE
+          </span>
+        </div>
+        <p class="text-xs text-purple-300/60 hidden sm:block">Cosmic Glint Incremental Engine</p>
+      </div>
+    </div>
+
+    <!-- Center Active Frenzy Banner (Hidden unless active) -->
+    <div id="frenzy-banner" class="hidden items-center gap-2 px-3.5 py-1 rounded-full bg-gradient-to-r from-fuchsia-600/40 via-purple-600/40 to-indigo-600/40 border border-fuchsia-400/60 shadow-lg shadow-fuchsia-500/20 animate-pulse">
+      <i class="fa-solid fa-bolt text-yellow-300 text-xs"></i>
+      <span id="frenzy-text" class="text-xs font-display font-bold text-fuchsia-100 tracking-wide">OVERDRIVE 3x (15s)</span>
+    </div>
+
+    <!-- Right Utility Controls -->
+    <div class="flex items-center gap-2">
+      <!-- Sound Toggle -->
+      <button id="btn-toggle-sound" class="w-9 h-9 rounded-xl bg-purple-900/50 hover:bg-purple-800/70 border border-purple-400/30 text-purple-200 flex items-center justify-center transition" title="Toggle Synth Audio">
+        <i id="icon-sound" class="fa-solid fa-volume-high text-sm"></i>
+      </button>
+
+      <!-- Save / Settings Modal Trigger -->
+      <button id="btn-open-settings" class="w-9 h-9 rounded-xl bg-purple-900/50 hover:bg-purple-800/70 border border-purple-400/30 text-purple-200 flex items-center justify-center transition" title="Save & Settings">
+        <i class="fa-solid fa-gear text-sm"></i>
+      </button>
+
+      <!-- Upgrade Drawer Toggle Button (Mobile & Desktop quick button) -->
+      <button id="btn-header-drawer" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-500 hover:to-fuchsia-500 text-white font-semibold text-xs flex items-center gap-2 shadow-lg shadow-purple-600/30 transition">
+        <i class="fa-solid fa-bolt"></i>
+        <span>Upgrades</span>
+        <span id="header-affordable-badge" class="px-1.5 py-0.2 rounded-full bg-black/40 text-[11px] font-mono">0</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- =========================================================================
+       MAIN WORKSPACE (STAGE + COLLAPSIBLE UPGRADE DRAWER)
+       ========================================================================= -->
+  <main class="relative flex-1 min-h-0 flex overflow-hidden cosmic-grid">
+
+    <!-- Background Interactive Particle Canvas -->
+    <canvas id="particle-canvas" class="absolute inset-0 pointer-events-none z-10"></canvas>
+
+    <!-- Lucky Num-Orb Container -->
+    <div id="lucky-orb-layer" class="absolute inset-0 pointer-events-none z-40 overflow-hidden"></div>
+
+    <!-- CENTER / LEFT STAGE: THE NUM & CURRENCY READOUT -->
+    <section id="main-stage" class="relative z-20 flex-1 min-h-0 flex flex-col items-center justify-between p-4 sm:p-6 overflow-hidden">
+
+      <!-- Currency Counter HUD Card -->
+      <div class="w-full max-w-xl shrink-0 bg-num-900/75 backdrop-blur-xl border border-purple-500/30 rounded-2xl p-4 sm:p-5 shadow-2xl shadow-purple-950/70">
+        <div class="flex items-center justify-center gap-3">
+          <img id="hud-coin-icon" src="" alt="Robux" class="w-9 h-9 sm:w-11 sm:h-11 object-contain drop-shadow-[0_0_10px_rgba(192,132,252,0.7)]" />
+          <div class="text-center">
+            <div class="flex items-baseline justify-center gap-2">
+              <span id="hud-num-coins" class="font-display font-black text-3xl sm:text-5xl tracking-tight text-white drop-shadow-[0_2px_12px_rgba(168,85,247,0.6)]">
+                0
+              </span>
+              <span class="text-xs sm:text-sm font-display uppercase tracking-widest text-purple-300 font-bold">
+                Robux
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sub-stats bar: RPS, Click Power, Glint Multiplier -->
+        <div class="mt-4 pt-3 border-t border-purple-500/20 grid grid-cols-3 gap-2 text-center">
+          <div class="bg-num-950/60 rounded-xl py-1.5 px-2 border border-purple-500/15">
+            <p class="text-[10px] uppercase tracking-wider text-purple-300/60">Robux / Sec</p>
+            <p id="hud-ncps" class="font-mono font-bold text-xs sm:text-sm text-purple-200">0.0 /s</p>
+          </div>
+          <div class="bg-num-950/60 rounded-xl py-1.5 px-2 border border-purple-500/15">
+            <p class="text-[10px] uppercase tracking-wider text-purple-300/60">Click Power</p>
+            <p id="hud-click-power" class="font-mono font-bold text-xs sm:text-sm text-fuchsia-300">+1</p>
+          </div>
+          <div class="bg-num-950/60 rounded-xl py-1.5 px-2 border border-purple-500/15">
+            <p class="text-[10px] uppercase tracking-wider text-purple-300/60">Glint Bonus</p>
+            <p id="hud-glint-mult" class="font-mono font-bold text-xs sm:text-sm text-amber-300">1.0x</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- =====================================================================
+           CENTRAL CLICKABLE "NUM" TARGET WITH GLINT SHADERS
+           ===================================================================== -->
+      <div class="relative flex-1 min-h-0 flex flex-col items-center justify-center py-2">
+        <!-- Outer Sacred Rings (Visible & enhanced on higher tiers / NUMWATERONE) -->
+        <div id="num-cosmic-ring-1" class="absolute w-64 h-64 sm:w-80 sm:h-80 rounded-full border border-purple-500/20 pointer-events-none" style="animation: spinSlow 24s linear infinite;"></div>
+        <div id="num-cosmic-ring-2" class="absolute w-72 h-72 sm:w-96 sm:h-96 rounded-full border border-dashed border-fuchsia-400/15 pointer-events-none" style="animation: spinReverse 32s linear infinite;"></div>
+
+        <!-- Dynamic Ambient Back-Glow -->
+        <div id="num-ambient-glow" class="absolute w-56 h-56 sm:w-72 sm:h-72 rounded-full blur-3xl opacity-55 pointer-events-none transition-all duration-500 bg-purple-600"></div>
+
+        <!-- THE CLICKABLE NUM CONTAINER -->
+        <div id="num-click-target" class="num-stage-wrapper glint-tier-0 relative w-48 h-48 sm:w-64 sm:h-64 flex items-center justify-center rounded-3xl p-2" role="button" tabindex="0" aria-label="Click the Num">
+          <!-- Main Num Image -->
+          <img
+            id="num-main-image"
+            src=""
+            alt="Clickable Num"
+            class="num-main-img w-full h-full object-contain pointer-events-none select-none transition-all duration-300"
+          />
+
+          <!-- Glint Filter Overlay (Surface Sheen + Sweeping Light Beam) -->
+          <div id="num-glint-overlay" class="num-glint-overlay alpha-masked">
+            <div class="num-surface-tint"></div>
+            <div class="num-glint-beam"></div>
+          </div>
+        </div>
+
+        <!-- Active Glint Label Pill below the Num -->
+        <div class="mt-6 flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-num-900/90 border border-purple-500/35 shadow-lg">
+          <span id="stage-glint-dot" class="w-2.5 h-2.5 rounded-full bg-purple-400 animate-ping"></span>
+          <span id="stage-glint-name" class="font-display text-xs sm:text-sm font-bold tracking-wider text-purple-100">
+            BASE NUM
+          </span>
+        </div>
+      </div>
+
+      <!-- Subtle Bottom Next-Glint Teaser Bar -->
+      <div class="w-full max-w-md shrink-0 bg-num-900/60 backdrop-blur-md border border-purple-500/20 rounded-xl px-4 py-2 text-center">
+        <p id="next-glint-teaser" class="text-xs text-purple-300/80 font-mono">
+          Next Glint Evolution: <strong class="text-purple-100">Silver Glint</strong> (50 Robux)
+        </p>
+      </div>
+
+    </section>
+
+    <!-- =====================================================================
+         COLLAPSIBLE SIDE TAB / DRAWER FOR UPGRADES
+         ===================================================================== -->
+    <div id="drawer-wrapper" class="relative z-30 flex h-full max-h-full min-h-0 shrink-0">
+      <!-- Floating Expand/Collapse Handle Tab on the left edge of the drawer -->
+      <button
+        id="btn-drawer-handle"
+        class="self-center -mr-px w-8 h-28 rounded-l-2xl bg-num-800/95 hover:bg-purple-900 border-y border-l border-purple-500/40 flex flex-col items-center justify-center gap-2 text-purple-200 shadow-xl transition group"
+        title="Toggle Upgrades Drawer"
+      >
+        <i id="drawer-chevron" class="fa-solid fa-chevron-right text-xs transition-transform duration-300"></i>
+        <span class="text-[10px] font-display tracking-widest uppercase [writing-mode:vertical-rl] rotate-180 text-purple-300 group-hover:text-white">
+          UPGRADES
+        </span>
+      </button>
+
+      <!-- The Collapsible Drawer Panel -->
+      <aside
+        id="upgrade-drawer"
+        class="w-[340px] sm:w-[400px] lg:w-[430px] h-full max-h-full min-h-0 bg-num-950/95 backdrop-blur-2xl border-l border-purple-500/30 flex flex-col transition-all duration-300 ease-in-out overflow-hidden shadow-2xl shadow-black"
+      >
+        <!-- Drawer Header -->
+        <div class="p-4 shrink-0 border-b border-purple-500/25 flex items-center justify-between bg-num-900/50">
+          <div>
+            <h2 class="font-display font-bold text-base text-white tracking-wide flex items-center gap-2">
+              <i class="fa-solid fa-layer-group text-purple-400"></i>
+              <span>NUM LABORATORY</span>
+            </h2>
+            <p class="text-xs text-purple-300/70">Evolve Glint, Click Power & Automatons</p>
+          </div>
+
+          <!-- Buy Quantity Multiplier Selector (1x, 10x, MAX) -->
+          <div class="flex items-center bg-num-950 p-1 rounded-xl border border-purple-500/30">
+            <button data-buy-amt="1" class="buy-amt-btn px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-purple-600 text-white transition">1x</button>
+            <button data-buy-amt="10" class="buy-amt-btn px-2.5 py-1 rounded-lg text-xs font-mono font-bold text-purple-300 hover:text-white transition">10x</button>
+            <button data-buy-amt="MAX" class="buy-amt-btn px-2.5 py-1 rounded-lg text-xs font-mono font-bold text-purple-300 hover:text-white transition">MAX</button>
+          </div>
+        </div>
+
+        <!-- Category Navigation Tabs -->
+        <div class="grid grid-cols-3 gap-1 p-2 shrink-0 bg-num-900/40 border-b border-purple-500/20">
+          <button data-tab="glint" class="drawer-tab-btn py-2 px-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 bg-purple-600/30 text-white border border-purple-400/50 transition">
+            <i class="fa-solid fa-wand-sparkles text-fuchsia-300"></i>
+            <span>Num Glint</span>
+            <span id="badge-tab-glint" class="hidden w-2 h-2 rounded-full bg-fuchsia-400"></span>
+          </button>
+          <button data-tab="click" class="drawer-tab-btn py-2 px-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 text-purple-300 hover:bg-purple-900/40 border border-transparent transition">
+            <i class="fa-solid fa-hand-pointer text-purple-300"></i>
+            <span>Click Mult</span>
+            <span id="badge-tab-click" class="hidden w-2 h-2 rounded-full bg-fuchsia-400"></span>
+          </button>
+          <button data-tab="auto" class="drawer-tab-btn py-2 px-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 text-purple-300 hover:bg-purple-900/40 border border-transparent transition">
+            <i class="fa-solid fa-robot text-indigo-300"></i>
+            <span>Auto-Click</span>
+            <span id="badge-tab-auto" class="hidden w-2 h-2 rounded-full bg-fuchsia-400"></span>
+          </button>
+        </div>
+
+        <!-- Scrollable Tab Content List (min-h-0 prevents flex screen stretching!) -->
+        <div class="flex-1 min-h-0 overflow-y-auto p-3 space-y-2.5" id="drawer-content-container">
+          <!-- Dynamically populated by UIRenderer -->
+        </div>
+
+        <!-- Drawer Footer: Lifetime Stats Summary -->
+        <div class="p-3 shrink-0 bg-num-900/70 border-t border-purple-500/20 flex items-center justify-between text-[11px] text-purple-300/80 font-mono">
+          <span>Clicks: <strong id="stat-total-clicks" class="text-white">0</strong></span>
+          <span>Lifetime: <strong id="stat-lifetime-coins" class="text-white">0</strong></span>
+          <span id="autosave-indicator" class="text-emerald-400/90"><i class="fa-solid fa-check-circle mr-1"></i>Saved</span>
+        </div>
+      </aside>
+    </div>
+
+  </main>
+
+  <!-- =========================================================================
+       MODAL: SETTINGS, SAVE MANAGER & SANDBOX GRANT
+       ========================================================================= -->
+  <div id="modal-settings" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+    <div class="w-full max-w-md bg-num-900 border border-purple-500/40 rounded-3xl p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-purple-500/25">
+        <h3 class="font-display font-bold text-lg text-white flex items-center gap-2">
+          <i class="fa-solid fa-sliders text-purple-400"></i>
+          <span>Settings & Save Manager</span>
+        </h3>
+        <button id="btn-close-settings" class="w-8 h-8 rounded-lg bg-purple-950 hover:bg-purple-800 text-purple-300 flex items-center justify-center">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div class="p-3.5 rounded-2xl bg-num-950/80 border border-purple-500/20 flex items-center justify-between">
+          <div>
+            <p class="font-semibold text-purple-100">Developer Testing Boost</p>
+            <p class="text-purple-300/60">Grant +500,000,000 Robux to test upgrades & glints</p>
+          </div>
+          <button id="btn-dev-boost" class="px-3 py-1.5 rounded-xl bg-fuchsia-600/30 hover:bg-fuchsia-600/50 border border-fuchsia-400/40 text-fuchsia-200 font-mono font-bold transition">
+            +500M Robux
+          </button>
+        </div>
+
+        <div class="p-3.5 rounded-2xl bg-num-950/80 border border-fuchsia-500/30 flex items-center justify-between">
+          <div>
+            <p class="font-semibold text-fuchsia-200">Test NUMWATERONE Finale</p>
+            <p class="text-purple-300/60">Preview the final Glint song, big text & popup video</p>
+          </div>
+          <button id="btn-test-finale" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-500 hover:to-fuchsia-500 text-white font-semibold transition">
+            Play Finale
+          </button>
+        </div>
+
+        <div class="p-3.5 rounded-2xl bg-num-950/80 border border-purple-500/20 flex items-center justify-between">
+          <div>
+            <p class="font-semibold text-purple-100">Manual Save</p>
+            <p class="text-purple-300/60">Game auto-saves every 10 seconds to LocalStorage</p>
+          </div>
+          <button id="btn-manual-save" class="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold transition">
+            Save Now
+          </button>
+        </div>
+
+        <div class="p-3.5 rounded-2xl bg-num-950/80 border border-red-500/20 flex items-center justify-between">
+          <div>
+            <p class="font-semibold text-red-200">Hard Reset Progress</p>
+            <p class="text-red-300/60">Wipes Robux and upgrades back to zero</p>
+          </div>
+          <button id="btn-hard-reset" class="px-3 py-1.5 rounded-xl bg-red-900/50 hover:bg-red-700 text-red-100 border border-red-500/40 font-semibold transition">
+            Reset Run
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       NUMWATERONE FINALE POPUP OVERLAY (BIG TEXT + SONG + VIDEO POPUP)
+       Automatically closes when the video finishes playing!
+       ========================================================================= -->
+  <div id="numwaterone-finale-overlay" class="fixed inset-0 z-[80] hidden flex-col items-center justify-center bg-black/90 backdrop-blur-xl p-4 sm:p-8 transition-opacity duration-500 opacity-0">
+    <!-- Top-Right Manual Skip/Close Button -->
+    <button id="btn-close-finale" class="absolute top-5 right-5 px-4 py-2 rounded-xl bg-purple-900/80 hover:bg-purple-700 border border-purple-400/50 text-purple-100 text-xs font-display font-bold tracking-wider flex items-center gap-2 shadow-lg transition">
+      <span>SKIP / CLOSE</span>
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+
+    <!-- Giant Glowing NUMWATERONE Header Text -->
+    <div class="text-center mb-6 select-none">
+      <p class="text-xs sm:text-sm font-mono uppercase tracking-[0.35em] text-fuchsia-300 mb-2">
+        TRANSCENDENT GLINT UNLOCKED
+      </p>
+      <h2 class="numwaterone-big-title font-display font-black text-4xl sm:text-7xl lg:text-8xl tracking-widest text-white uppercase">
+        NUMWATERONE
+      </h2>
+    </div>
+
+    <!-- Centered Video Popup Container -->
+    <div class="relative w-full max-w-3xl aspect-video rounded-3xl overflow-hidden border-2 border-fuchsia-400/70 shadow-[0_0_90px_rgba(168,85,247,0.75)] bg-num-950 flex items-center justify-center">
+      <!-- Actual HTML5 Video Element (Used when NUMWATERONE_VIDEO_URL is provided) -->
+      <video
+        id="numwaterone-video-player"
+        class="w-full h-full object-contain hidden bg-black"
+        playsinline
+      ></video>
+
+      <!-- Fallback Cutscene Display (Shown if NUMWATERONE_VIDEO_URL is empty or missing) -->
+      <div id="numwaterone-video-fallback" class="hidden flex-col items-center justify-center text-center p-6 space-y-4">
+        <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-fuchsia-500 via-purple-600 to-indigo-800 flex items-center justify-center shadow-[0_0_45px_#c084fc] border border-white/40 animate-bounce">
+          <i class="fa-solid fa-film text-white text-3xl"></i>
+        </div>
+        <div class="space-y-1 max-w-md">
+          <p class="font-display font-bold text-lg text-white tracking-wide">
+            NUMWATERONE ASCENSION CUTSCENE
+          </p>
+          <p class="text-xs text-purple-200/80 leading-relaxed">
+            Set <code class="px-1.5 py-0.5 rounded bg-purple-950 border border-purple-500/40 text-fuchsia-300 font-mono">NUMWATERONE_VIDEO_URL</code> at the top of the <code class="font-mono text-purple-200">&lt;script&gt;</code> tag to play your custom video here!
+          </p>
+        </div>
+        <div class="w-56 h-1.5 rounded-full bg-purple-950 overflow-hidden border border-purple-500/30">
+          <div id="finale-fallback-bar" class="h-full bg-gradient-to-r from-fuchsia-400 to-purple-500 w-0 transition-all duration-100"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed bottom-4 left-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- =========================================================================
+       GAME ARCHITECTURE & ENGINE SCRIPT
+       ========================================================================= -->
+  <script>
+    /**
+     * =========================================================================
+     * 1. USER ASSET, AUDIO & VIDEO CONFIGURATION (CHANGE YOUR PATHS HERE!)
+     * =========================================================================
+     * Replace the placeholder strings below with your own image, audio, and
+     * video file paths or URLs whenever you are ready.
+     */
+
+    // --- Default SVG Placeholders (Used until you swap NUM_IMAGE_URL / ROBUX_IMAGE_URL) ---
+    const DEFAULT_NUM_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
+      <defs>
+        <radialGradient id="numCore" cx="35%" cy="30%" r="70%">
+          <stop offset="0%" stop-color="#f0abfc"/>
+          <stop offset="45%" stop-color="#9333ea"/>
+          <stop offset="85%" stop-color="#3b0764"/>
+          <stop offset="100%" stop-color="#1e0538"/>
+        </radialGradient>
+        <linearGradient id="numRim" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity="0.8"/>
+          <stop offset="50%" stop-color="#c084fc" stop-opacity="0.4"/>
+          <stop offset="100%" stop-color="#581c87" stop-opacity="0.9"/>
+        </linearGradient>
+      </defs>
+      <polygon points="120,10 198,42 230,120 198,198 120,230 42,198 10,120 42,42" fill="url(#numCore)" stroke="url(#numRim)" stroke-width="6" stroke-linejoin="round"/>
+      <polygon points="120,32 182,58 208,120 182,182 120,208 58,182 32,120 58,58" fill="none" stroke="#e9d5ff" stroke-opacity="0.35" stroke-width="2.5"/>
+      <ellipse cx="95" cy="65" rx="46" ry="22" transform="rotate(-22 95 65)" fill="#ffffff" fill-opacity="0.28"/>
+      <text x="120" y="136" text-anchor="middle" font-family="Orbitron, sans-serif" font-weight="900" font-size="48" fill="#ffffff" stroke="#3b0764" stroke-width="3">NUM</text>
+      <circle cx="65" cy="65" r="4" fill="#ffffff"/>
+      <circle cx="178" cy="165" r="3.5" fill="#f0abfc"/>
+    </svg>`;
+
+    // Authentic Rounded Hexagonal Robux Icon SVG
+    const DEFAULT_ROBUX_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+      <defs>
+        <linearGradient id="robuxGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#fef08a"/>
+          <stop offset="45%" stop-color="#facc15"/>
+          <stop offset="100%" stop-color="#ca8a04"/>
+        </linearGradient>
+      </defs>
+      <!-- Outer Rounded Hexagon -->
+      <path d="M50 6 L88 28 L88 72 L50 94 L12 72 L12 28 Z" fill="url(#robuxGrad)" stroke="#ffffff" stroke-width="5" stroke-linejoin="round"/>
+      <!-- Inner Hexagonal Cutout Ring -->
+      <path d="M50 18 L77 34 L77 66 L50 82 L23 66 L23 34 Z" fill="#1e0f3d" stroke="url(#robuxGrad)" stroke-width="3" stroke-linejoin="round"/>
+      <!-- Characteristic Robux Center Rounded Square -->
+      <rect x="36" y="36" width="28" height="28" rx="5" fill="url(#robuxGrad)"/>
+    </svg>`;
+
+    // =========================================================================
+    // >>> A. IMAGE PATHS (Swap NUM_IMAGE_URL with your custom image!) <<<
+    // =========================================================================
+    const NUM_IMAGE_URL = 'https://tr.rbxcdn.com/30DAY-AvatarHeadshot-40C73B98BC0E2BB42FF24D3DDDE5C762-Png/150/150/AvatarHeadshot/Webp/noFilter';
+    const ROBUX_IMAGE_URL = 'https://upload.wikimedia.org/wikipedia/commons/c/c7/Robux_2019_Logo_gold.svg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original';
+
+    // =========================================================================
+    // >>> B. CATEGORIZED AUDIO SOURCES (Put your .mp3 / .wav / .ogg paths here) <<<
+    // Leave as "" to use the built-in synth sound effects until you add files.
+    // =========================================================================
+    const AUDIO_SOURCES = {
+      mainClick: "../assets/sounds/numwaterone/Num_Friend.wav",        // e.g. "./assets/sfx/main-click.mp3"     (Clicking the main Num)
+      glintUpgrade: "../assets/sounds/numwaterone/Num_Bussin.wav",     // e.g. "./assets/sfx/glint-upgrade.mp3"  (Buying a Glint evolution)
+      otherUpgrade: "../assets/sounds/numwaterone/Num_Surprised.wav",     // e.g. "./assets/sfx/other-upgrade.mp3"  (Buying Click Mult or Auto-Clickers)
+      numwateroneSong: "../assets/sounds/numwaterone/bgm.mp3"   // e.g. "./assets/music/numwaterone.mp3"  (Song played when reaching NUMWATERONE)
+    };
+
+    // =========================================================================
+    // >>> C. NUMWATERONE FINALE POPUP VIDEO PATH <<<
+    // Plays in a popup when reaching NUMWATERONE (Tier 9) and auto-hides on end.
+    // =========================================================================
+    const NUMWATERONE_VIDEO_URL = "../assets/videos/numwaterone/hbd.mp4"; // e.g. "./assets/video/numwaterone.mp4"
+
+
+    /**
+     * =========================================================================
+     * 2. GAME CONFIGURATION (GLINT TIERS, CLICK UPGRADES, AUTO-CLICKERS)
+     * =========================================================================
+     */
+    const GameConfig = {
+      // Exact Glint Evolution Sequence requested:
+      // Base -> Silver -> Gold -> Diamond -> Emerald -> Sapphire -> Ruby -> Rainbow -> Neon (RGB) -> NUMWATERONE (Purple)
+      GLINT_TIERS: [
+        {
+          tier: 0,
+          id: 'base',
+          name: 'Base Num',
+          colorLabel: 'Default Cosmic',
+          cost: 0,
+          clickMult: 1,
+          globalMult: 1,
+          swatch: 'linear-gradient(135deg, #7c3aed, #4c1d95)',
+          glowColor: '#9333ea',
+          particleColors: ['#c084fc', '#a855f7', '#e9d5ff'],
+          desc: 'Unmodified base Num resonating with gentle purple energy.'
+        },
+        {
+          tier: 1,
+          id: 'silver',
+          name: 'Silver Glint',
+          colorLabel: 'Silver Metallic',
+          cost: 50,
+          clickMult: 2,
+          globalMult: 1.25,
+          swatch: 'linear-gradient(135deg, #f8fafc, #94a3b8, #e2e8f0)',
+          glowColor: '#cbd5e1',
+          particleColors: ['#ffffff', '#e2e8f0', '#94a3b8'],
+          desc: 'Polished metallic silver sheen that doubles click power.'
+        },
+        {
+          tier: 2,
+          id: 'gold',
+          name: 'Gold Glint',
+          colorLabel: 'Radiant Yellow',
+          cost: 400,
+          clickMult: 4,
+          globalMult: 1.6,
+          swatch: 'linear-gradient(135deg, #fef08a, #eab308, #ca8a04)',
+          glowColor: '#facc15',
+          particleColors: ['#fef08a', '#facc15', '#eab308'],
+          desc: 'Aurelian golden yellow reflection surging with prestige.'
+        },
+        {
+          tier: 3,
+          id: 'diamond',
+          name: 'Diamond Glint',
+          colorLabel: 'Crystalline Light-Blue',
+          cost: 3000,
+          clickMult: 8,
+          globalMult: 2.2,
+          swatch: 'linear-gradient(135deg, #e0f2fe, #38bdf8, #bae6fd)',
+          glowColor: '#38bdf8',
+          particleColors: ['#e0f2fe', '#7dd3fc', '#38bdf8'],
+          desc: 'Hard light-blue diamond refraction with razor-sharp sparkle.'
+        },
+        {
+          tier: 4,
+          id: 'emerald',
+          name: 'Emerald Glint',
+          colorLabel: 'Luminous Green',
+          cost: 25000,
+          clickMult: 16,
+          globalMult: 3.0,
+          swatch: 'linear-gradient(135deg, #a7f3d0, #10b981, #047857)',
+          glowColor: '#10b981',
+          particleColors: ['#d1fae5', '#34d399', '#10b981'],
+          desc: 'Vibrant emerald green crystal infusion with bio-luminescent glint.'
+        },
+        {
+          tier: 5,
+          id: 'sapphire',
+          name: 'Sapphire Glint',
+          colorLabel: 'Deep Electric Blue',
+          cost: 200000,
+          clickMult: 35,
+          globalMult: 4.5,
+          swatch: 'linear-gradient(135deg, #93c5fd, #2563eb, #1d4ed8)',
+          glowColor: '#3b82f6',
+          particleColors: ['#dbeafe', '#60a5fa', '#2563eb'],
+          desc: 'High-pressure oceanic sapphire glaze crackling with azure energy.'
+        },
+        {
+          tier: 6,
+          id: 'ruby',
+          name: 'Ruby Glint',
+          colorLabel: 'Crimson Red',
+          cost: 1800000,
+          clickMult: 75,
+          globalMult: 7.0,
+          swatch: 'linear-gradient(135deg, #fecdd3, #e11d48, #881337)',
+          glowColor: '#f43f5e',
+          particleColors: ['#ffe4e6', '#fb7185', '#e11d48'],
+          desc: 'Searing crimson ruby flare that superheats every Robux minted.'
+        },
+        {
+          tier: 7,
+          id: 'rainbow',
+          name: 'Rainbow Glint',
+          colorLabel: 'Prismatic Spectrum',
+          cost: 15000000,
+          clickMult: 160,
+          globalMult: 12.0,
+          swatch: 'linear-gradient(135deg, #ff0055, #ffcc00, #00ff88, #00bfff, #cc33ff)',
+          glowColor: '#ec4899',
+          particleColors: ['#ff0055', '#ffcc00', '#00ff88', '#00bfff', '#cc33ff'],
+          desc: 'Full-spectrum holographic chroma wave cycling through all wavelengths.'
+        },
+        {
+          tier: 8,
+          id: 'neon',
+          name: 'Neon Glint (RGB)',
+          colorLabel: 'Red • Green • Blue Laser',
+          cost: 140000000,
+          clickMult: 350,
+          globalMult: 22.0,
+          swatch: 'linear-gradient(135deg, #ff0044 0%, #00ff66 50%, #0066ff 100%)',
+          glowColor: '#00ff66',
+          particleColors: ['#ff0044', '#00ff66', '#0066ff', '#ffffff'],
+          desc: 'Overclocked tri-color Red, Green & Blue cybernetic laser matrix.'
+        },
+        {
+          tier: 9,
+          id: 'numwaterone',
+          name: 'NUMWATERONE',
+          colorLabel: 'Transcendent Purple',
+          cost: 1500000000,
+          clickMult: 1000,
+          globalMult: 50.0,
+          swatch: 'linear-gradient(135deg, #ffffff 0%, #e879f9 35%, #9333ea 70%, #3b0764 100%)',
+          glowColor: '#c084fc',
+          particleColors: ['#ffffff', '#f0abfc', '#c084fc', '#9333ea', '#7e22ce'],
+          desc: 'THE ULTIMATE FORM. Pure ultraviolet NUMWATERONE singularity.'
+        }
+      ],
+
+      // Repeatable & Scaling Manual Click Upgrades
+      CLICK_UPGRADES: [
+        {
+          id: 'ergonomic_pulse',
+          name: 'Amethyst Finger Pulse',
+          icon: 'fa-hand-sparkles',
+          baseCost: 15,
+          costScale: 1.55,
+          flatClickAdd: 1,
+          clickPctAdd: 0,
+          desc: 'Adds +1 base Robux per manual click.'
+        },
+        {
+          id: 'twin_resonator',
+          name: 'Twin-Click Resonator',
+          icon: 'fa-clone',
+          baseCost: 120,
+          costScale: 1.65,
+          flatClickAdd: 5,
+          clickPctAdd: 0.10,
+          desc: '+5 base click power and +10% manual click multiplier.'
+        },
+        {
+          id: 'violet_capacitor',
+          name: 'Violet Surge Capacitor',
+          icon: 'fa-bolt-lightning',
+          baseCost: 950,
+          costScale: 1.75,
+          flatClickAdd: 25,
+          clickPctAdd: 0.20,
+          desc: '+25 base click power and +20% manual click multiplier.'
+        },
+        {
+          id: 'ncps_synergy',
+          name: 'Kinetic RPS Conduit',
+          icon: 'fa-link',
+          baseCost: 6500,
+          costScale: 1.9,
+          flatClickAdd: 0,
+          ncpsToClickRatio: 0.02, // Adds 2% of RPS to every click per level
+          desc: 'Each click also gains +2% of your total Auto-Click Robux/s.'
+        },
+        {
+          id: 'quantum_fracture',
+          name: 'Quantum Num Splitter',
+          icon: 'fa-burst',
+          baseCost: 55000,
+          costScale: 2.0,
+          flatClickAdd: 350,
+          clickPctAdd: 0.35,
+          desc: '+350 base click power and +35% manual click multiplier.'
+        }
+      ],
+
+      // Auto-Clicker Producers (Passive Robux/s)
+      AUTO_CLICKERS: [
+        {
+          id: 'ghost_cursor',
+          name: 'Phantom Auto-Pointer',
+          icon: 'fa-arrow-pointer',
+          baseCost: 18,
+          costScale: 1.15,
+          baseNcps: 0.5,
+          desc: 'Autonomous holographic cursor that taps the Num every two seconds.'
+        },
+        {
+          id: 'num_extractor',
+          name: 'Violet Num Siphon',
+          icon: 'fa-magnet',
+          baseCost: 125,
+          costScale: 1.15,
+          baseNcps: 4,
+          desc: 'Draws stray Robux directly out of the ambient purple ether.'
+        },
+        {
+          id: 'prism_forge',
+          name: 'Glint Prism Forge',
+          icon: 'fa-cubes',
+          baseCost: 1100,
+          costScale: 1.15,
+          baseNcps: 28,
+          desc: 'Refracts light beams across the Num to mint Robux automatically.'
+        },
+        {
+          id: 'amethyst_reactor',
+          name: 'Amethyst Core Reactor',
+          icon: 'fa-atom',
+          baseCost: 12000,
+          costScale: 1.15,
+          baseNcps: 190,
+          desc: 'High-yield dark purple fusion chamber humming with Num energy.'
+        },
+        {
+          id: 'nebula_loom',
+          name: 'Nebula Robux Synthesizer',
+          icon: 'fa-satellite',
+          baseCost: 135000,
+          costScale: 1.15,
+          baseNcps: 1400,
+          desc: 'Orbital array harvesting cosmic Robux from deep space.'
+        },
+        {
+          id: 'chrono_spire',
+          name: 'Chrono-Num Temporal Spire',
+          icon: 'fa-hourglass-half',
+          baseCost: 1600000,
+          costScale: 1.15,
+          baseNcps: 11500,
+          desc: 'Pulls unclicked Nums from parallel timelines into your vault.'
+        },
+        {
+          id: 'numwaterone_shrine',
+          name: 'NUMWATERONE Monolith',
+          icon: 'fa-monument',
+          baseCost: 22000000,
+          costScale: 1.15,
+          baseNcps: 98000,
+          desc: 'Transcendent purple citadel bending reality into pure Robux.'
+        }
+      ]
+    };
+
+    /**
+     * =========================================================================
+     * 3. STATE STORE
+     * =========================================================================
+     */
+    const STORAGE_KEY = 'NUM_CLICKER_SAVE_V1';
+
+    function createInitialState() {
+      const clickLevels = {};
+      GameConfig.CLICK_UPGRADES.forEach(u => clickLevels[u.id] = 0);
+
+      const autoCounts = {};
+      GameConfig.AUTO_CLICKERS.forEach(a => autoCounts[a.id] = 0);
+
+      return {
+        numCoins: 0,
+        lifetimeCoins: 0,
+        totalClicks: 0,
+        glintTier: 0,            // Unlocked glint tier (0..9)
+        clickUpgrades: clickLevels,
+        autoClickers: autoCounts,
+        frenzyMultiplier: 1,
+        frenzyEndTime: 0,
+        activeTab: 'glint',      // 'glint' | 'click' | 'auto'
+        buyAmount: 1,            // 1 | 10 | 'MAX'
+        drawerOpen: true,
+        soundEnabled: true,
+        lastTick: Date.now()
+      };
+    }
+
+    let GameState = createInitialState();
+
+    /**
+     * =========================================================================
+     * 4. MATH & FORMATTING HELPERS
+     * =========================================================================
+     */
+    const NUMBER_SUFFIXES = ['', 'K', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No', 'Dc'];
+
+    function formatNumber(val, showDecimals = false) {
+      if (!Number.isFinite(val) || val < 0) return '0';
+      if (val < 1000) {
+        return showDecimals ? val.toFixed(1) : Math.floor(val).toLocaleString();
+      }
+      const tier = Math.min(
+        NUMBER_SUFFIXES.length - 1,
+        Math.floor(Math.log10(Math.abs(val)) / 3)
+      );
+      if (tier === 0) return Math.floor(val).toLocaleString();
+      const scaled = val / Math.pow(1000, tier);
+      return `${scaled.toFixed(2)}${NUMBER_SUFFIXES[tier]}`;
+    }
+
+    // Geometric series calculator for 1x, 10x, and MAX upgrade purchases
+    function getBulkPurchaseInfo(baseCost, costScale, owned, currentCoins, buyMode) {
+      const firstItemCost = baseCost * Math.pow(costScale, owned);
+
+      if (buyMode === 'MAX') {
+        if (currentCoins < firstItemCost) {
+          return {
+            count: 1,
+            cost: Math.ceil(firstItemCost),
+            affordable: false
+          };
+        }
+        const rawMax = Math.floor(
+          Math.log(1 + (currentCoins * (costScale - 1)) / firstItemCost) / Math.log(costScale)
+        );
+        const count = Math.max(1, rawMax);
+        const totalCost = Math.ceil(
+          firstItemCost * ((Math.pow(costScale, count) - 1) / (costScale - 1))
+        );
+        return {
+          count,
+          cost: totalCost,
+          affordable: currentCoins >= totalCost
+        };
+      }
+
+      const count = typeof buyMode === 'number' ? buyMode : 1;
+      const totalCost = Math.ceil(
+        firstItemCost * ((Math.pow(costScale, count) - 1) / (costScale - 1))
+      );
+      return {
+        count,
+        cost: totalCost,
+        affordable: currentCoins >= totalCost
+      };
+    }
+
+    /**
+     * =========================================================================
+     * 5. CATEGORIZED AUDIO ENGINE (Custom Audio Files + Web Audio Fallback)
+     * Categories:
+     *  - mainClick       (Clicking the main Num)
+     *  - glintUpgrade    (Buying a Glint evolution)
+     *  - otherUpgrade    (Buying Click Mult or Auto-Clickers)
+     *  - numwateroneSong (Song played when reaching NUMWATERONE Tier 9)
+     * =========================================================================
+     */
+    const SoundEngine = {
+      ctx: null,
+      audioCache: {},
+      activeSongAudio: null,
+
+      init() {
+        if (!this.ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) this.ctx = new AudioCtx();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      },
+
+      // Preloads any custom file paths configured in AUDIO_SOURCES
+      preloadCustomAudio() {
+        Object.entries(AUDIO_SOURCES).forEach(([category, src]) => {
+          if (src && src.trim() !== '') {
+            const audio = new Audio(src);
+            audio.preload = 'auto';
+            this.audioCache[category] = audio;
+          }
+        });
+      },
+
+      // Plays a custom audio file if configured; returns true if played, false to use synth fallback
+      tryPlayCustomFile(category, volume = 0.7, varyPitch = false,startTime = 0) {
+        const src = AUDIO_SOURCES[category];
+        if (!src || src.trim() === '') return false;
+
+        try {
+          if (category === 'numwateroneSong') {
+            this.stopFinaleSong();
+            const song = new Audio(src);
+            song.volume = volume;
+            song.currentTime = startTime
+            this.activeSongAudio = song;
+            song.play().catch(() => {});
+            return true;
+          }
+
+          const baseAudio = this.audioCache[category] || new Audio(src);
+          const sfx = baseAudio.cloneNode();
+          sfx.volume = volume;
+          if (varyPitch) {
+            sfx.preservesPitch = false;
+            sfx.playbackRate = 0.93 + Math.random() * 0.14;
+          }
+          sfx.play().catch(() => {});
+          return true;
+        } catch (err) {
+          return false;
+        }
+      },
+
+      // 1. CATEGORY: Main Num Click Sound
+      playMainClick(tierIndex = 0) {
+        if (!GameState.soundEnabled) return;
+        if (this.tryPlayCustomFile('mainClick', 0.3, true)) return;
+
+        this.init();
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        const baseFreq = 240 + tierIndex * 36 + (Math.random() * 25 - 12);
+        osc.type = tierIndex >= 7 ? 'triangle' : 'sine';
+        osc.frequency.setValueAtTime(baseFreq, now);
+        osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.65, now + 0.065);
+
+        gain.gain.setValueAtTime(0.14, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.075);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.08);
+      },
+
+      // 2. CATEGORY: Other Upgrades (Click Multipliers & Auto-Clickers)
+      playOtherUpgrade() {
+        if (!GameState.soundEnabled) return;
+        if (this.tryPlayCustomFile('otherUpgrade', 0.4, false)) return;
+
+        this.init();
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime;
+        [440, 554.37, 659.25].forEach((freq, i) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + i * 0.055);
+          gain.gain.setValueAtTime(0.12, now + i * 0.055);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.055 + 0.16);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + i * 0.055);
+          osc.stop(now + i * 0.055 + 0.17);
+        });
+      },
+
+      // 3. CATEGORY: Glint Evolution Upgrade Sound
+      playGlintUpgrade() {
+        if (!GameState.soundEnabled) return;
+        if (this.tryPlayCustomFile('glintUpgrade', 1, false)) return;
+
+        this.init();
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime;
+        const chord = [293.66, 369.99, 440, 587.33, 880];
+        chord.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.06);
+          gain.gain.setValueAtTime(0.09, now + idx * 0.06);
+          gain.gain.exponentialRampToValueAtTime(0.0008, now + idx * 0.06 + 0.55);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + idx * 0.06);
+          osc.stop(now + idx * 0.06 + 0.58);
+        });
+      },
+
+      // 4. CATEGORY: NUMWATERONE Finale Song
+      playNumwateroneSong() {
+        if (!GameState.soundEnabled) return;
+        if (this.tryPlayCustomFile('numwateroneSong', 0.2, false,4)) return;
+
+        // Synth Anthem Fallback if AUDIO_SOURCES.numwateroneSong is empty
+        this.init();
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime;
+        const melody = [
+          { f: 293.66, t: 0.0, d: 0.35 },
+          { f: 440.00, t: 0.35, d: 0.35 },
+          { f: 554.37, t: 0.70, d: 0.35 },
+          { f: 587.33, t: 1.05, d: 0.70 },
+          { f: 440.00, t: 1.80, d: 0.35 },
+          { f: 587.33, t: 2.15, d: 0.35 },
+          { f: 659.25, t: 2.50, d: 0.45 },
+          { f: 880.00, t: 2.95, d: 1.40 }
+        ];
+        melody.forEach(note => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(note.f, now + note.t);
+          gain.gain.setValueAtTime(0.11, now + note.t);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + note.t + note.d);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + note.t);
+          osc.stop(now + note.t + note.d + 0.02);
+        });
+      },
+
+      stopFinaleSong() {
+        if (this.activeSongAudio) {
+          this.activeSongAudio.pause();
+          this.activeSongAudio.currentTime = 0;
+          this.activeSongAudio = null;
+        }
+      }
+    };
+
+    /**
+     * =========================================================================
+     * 6. CORE GAME ENGINE (CPS & Click Power Formulas)
+     * =========================================================================
+     */
+    const GameEngine = {
+      getOwnedGlintConfig() {
+        return GameConfig.GLINT_TIERS[GameState.glintTier] || GameConfig.GLINT_TIERS[0];
+      },
+
+      computeNCPS() {
+        let rawNcps = 0;
+        GameConfig.AUTO_CLICKERS.forEach(prod => {
+          const count = GameState.autoClickers[prod.id] || 0;
+          rawNcps += count * prod.baseNcps;
+        });
+        const glint = this.getOwnedGlintConfig();
+        return rawNcps * glint.globalMult * GameState.frenzyMultiplier;
+      },
+
+      computeClickPower() {
+        let baseClick = 1;
+        let pctBonus = 1;
+        let ncpsSynergy = 0;
+
+        GameConfig.CLICK_UPGRADES.forEach(upg => {
+          const lvl = GameState.clickUpgrades[upg.id] || 0;
+          if (lvl > 0) {
+            if (upg.flatClickAdd) baseClick += upg.flatClickAdd * lvl;
+            if (upg.clickPctAdd) pctBonus += upg.clickPctAdd * lvl;
+            if (upg.ncpsToClickRatio) ncpsSynergy += upg.ncpsToClickRatio * lvl;
+          }
+        });
+
+        const glint = this.getOwnedGlintConfig();
+        const ncps = this.computeNCPS();
+        const total = (baseClick * pctBonus * glint.clickMult + ncps * ncpsSynergy) * GameState.frenzyMultiplier;
+        return Math.max(1, total);
+      },
+
+      handleManualClick(clientX, clientY) {
+        const power = this.computeClickPower();
+        GameState.numCoins += power;
+        GameState.lifetimeCoins += power;
+        GameState.totalClicks += 1;
+
+        const visualTier = this.getOwnedGlintConfig();
+        SoundEngine.playMainClick(visualTier.tier);
+
+        // Spawn Floating +Robux Text & Particle Burst
+        VisualFX.spawnFloatingNumber(clientX, clientY, power, visualTier);
+        VisualFX.spawnClickParticles(clientX, clientY, visualTier);
+
+        UIRenderer.updateHUD();
+        UIRenderer.updateAffordableBadges();
+      },
+
+      buyGlintTier(targetTier) {
+        if (targetTier !== GameState.glintTier + 1) return;
+        const tierObj = GameConfig.GLINT_TIERS[targetTier];
+        if (!tierObj || GameState.numCoins < tierObj.cost) return;
+
+        GameState.numCoins -= tierObj.cost;
+        GameState.glintTier = targetTier;
+
+        SoundEngine.playGlintUpgrade();
+        const rect = document.getElementById('num-click-target').getBoundingClientRect();
+        VisualFX.spawnClickParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, tierObj, 42);
+
+        UIRenderer.showToast(`EVOLVED TO ${tierObj.name.toUpperCase()}!`, tierObj.colorLabel);
+        UIRenderer.applyGlintVisuals();
+        UIRenderer.renderDrawerContent();
+        UIRenderer.updateHUD();
+        saveGame();
+
+        // Trigger the special NUMWATERONE Finale when reaching Tier 9!
+        if (targetTier === 9) {
+          UIRenderer.triggerNumwateroneFinale();
+        }
+      },
+
+      buyClickUpgrade(upgId) {
+        const upg = GameConfig.CLICK_UPGRADES.find(u => u.id === upgId);
+        if (!upg) return;
+        const owned = GameState.clickUpgrades[upgId] || 0;
+        const info = getBulkPurchaseInfo(upg.baseCost, upg.costScale, owned, GameState.numCoins, GameState.buyAmount);
+
+        if (!info.affordable) return;
+        GameState.numCoins -= info.cost;
+        GameState.clickUpgrades[upgId] = owned + info.count;
+
+        SoundEngine.playOtherUpgrade();
+        UIRenderer.renderDrawerContent();
+        UIRenderer.updateHUD();
+      },
+
+      buyAutoClicker(autoId) {
+        const prod = GameConfig.AUTO_CLICKERS.find(a => a.id === autoId);
+        if (!prod) return;
+        const owned = GameState.autoClickers[autoId] || 0;
+        const info = getBulkPurchaseInfo(prod.baseCost, prod.costScale, owned, GameState.numCoins, GameState.buyAmount);
+
+        if (!info.affordable) return;
+        GameState.numCoins -= info.cost;
+        GameState.autoClickers[autoId] = owned + info.count;
+
+        SoundEngine.playOtherUpgrade();
+        UIRenderer.renderDrawerContent();
+        UIRenderer.updateHUD();
+      }
+    };
+
+    /**
+     * =========================================================================
+     * 7. VISUAL FX ENGINE (Particles, Floating Robux & Lucky Num-Orbs)
+     * =========================================================================
+     */
+    const VisualFX = {
+      canvas: null,
+      ctx: null,
+      particles: [],
+      ambientMotes: [],
+
+      init() {
+        this.canvas = document.getElementById('particle-canvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.resize();
+        window.addEventListener('resize', () => this.resize());
+
+        // Create subtle floating purple background motes
+        for (let i = 0; i < 32; i++) {
+          this.ambientMotes.push({
+            x: Math.random() * window.innerWidth,
+            y: Math.random() * window.innerHeight,
+            r: Math.random() * 2.2 + 0.8,
+            vx: (Math.random() - 0.5) * 0.25,
+            vy: -Math.random() * 0.4 - 0.1,
+            alpha: Math.random() * 0.45 + 0.15
+          });
+        }
+      },
+
+      resize() {
+        if (!this.canvas) return;
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+      },
+
+      spawnClickParticles(x, y, glintConfig, count = 16) {
+        const colors = glintConfig.particleColors || ['#c084fc'];
+        for (let i = 0; i < count; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = Math.random() * 5.5 + 1.8;
+          this.particles.push({
+            x,
+            y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed - 1.4,
+            size: Math.random() * 5 + 2.5,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            alpha: 1,
+            decay: Math.random() * 0.022 + 0.018,
+            diamond: glintConfig.tier >= 3
+          });
+        }
+      },
+
+      spawnFloatingNumber(x, y, amount, glintConfig) {
+        const el = document.createElement('div');
+        el.className = 'floating-num-text flex items-center gap-1.5 font-display font-extrabold text-lg sm:text-xl drop-shadow-[0_2px_8px_rgba(0,0,0,0.85)]';
+        const jitterX = (Math.random() - 0.5) * 38;
+        const jitterY = (Math.random() - 0.5) * 18;
+        el.style.left = `${x + jitterX - 24}px`;
+        el.style.top = `${y + jitterY - 18}px`;
+
+        const activeColor = glintConfig.particleColors[0] || '#e9d5ff';
+        el.style.color = activeColor;
+
+        el.innerHTML = `
+          <span>+${formatNumber(amount)}</span>
+          <img src="${ROBUX_IMAGE_URL}" class="w-5 h-5 object-contain" alt="Robux" />
+        `;
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 950);
+      },
+
+      spawnLuckyNumOrb() {
+        const layer = document.getElementById('lucky-orb-layer');
+        if (!layer || layer.children.length > 0) return;
+
+        const orb = document.createElement('button');
+        const maxX = Math.max(200, window.innerWidth - 460);
+        const maxY = Math.max(180, window.innerHeight - 180);
+        const left = Math.floor(Math.random() * (maxX - 80)) + 40;
+        const top = Math.floor(Math.random() * (maxY - 100)) + 80;
+
+        orb.className = 'lucky-orb pointer-events-auto absolute w-14 h-14 rounded-full bg-gradient-to-br from-fuchsia-400 via-purple-500 to-indigo-600 p-1 shadow-[0_0_30px_#e879f9] border-2 border-white flex items-center justify-center cursor-pointer transition transform hover:scale-110';
+        orb.style.left = `${left}px`;
+        orb.style.top = `${top}px`;
+        orb.title = 'Click for a Cosmic Robux Anomaly Bonus!';
+
+        orb.innerHTML = `<img src="${ROBUX_IMAGE_URL}" class="w-9 h-9 object-contain animate-spin" style="animation-duration: 6s" alt="Lucky Robux" />`;
+
+        const timeoutId = setTimeout(() => {
+          if (orb.parentNode) orb.remove();
+        }, 11000);
+
+        orb.addEventListener('click', () => {
+          clearTimeout(timeoutId);
+          const rect = orb.getBoundingClientRect();
+          const cx = rect.left + rect.width / 2;
+          const cy = rect.top + rect.height / 2;
+
+          // Activate 3x Overdrive Frenzy for 15s + Instant Bonus
+          GameState.frenzyMultiplier = 3;
+          GameState.frenzyEndTime = Date.now() + 15000;
+          const instantBonus = Math.max(25, GameEngine.computeClickPower() * 15 + GameEngine.computeNCPS() * 10);
+          GameState.numCoins += instantBonus;
+          GameState.lifetimeCoins += instantBonus;
+
+          SoundEngine.playGlintUpgrade();
+          this.spawnClickParticles(cx, cy, GameConfig.GLINT_TIERS[9], 32);
+          this.spawnFloatingNumber(cx, cy, instantBonus, GameConfig.GLINT_TIERS[9]);
+          UIRenderer.showToast('ROBUX ANOMALY CAPTURED!', '3x Overdrive for 15s + Instant Robux!');
+          orb.remove();
+        });
+
+        layer.appendChild(orb);
+      },
+
+      renderFrame() {
+        if (!this.ctx) return;
+        const w = this.canvas.width;
+        const h = this.canvas.height;
+        this.ctx.clearRect(0, 0, w, h);
+
+        // 1. Ambient Cosmic Dust
+        for (const m of this.ambientMotes) {
+          m.x += m.vx;
+          m.y += m.vy;
+          if (m.y < -10) m.y = h + 10;
+          if (m.x < -10) m.x = w + 10;
+          if (m.x > w + 10) m.x = -10;
+
+          this.ctx.beginPath();
+          this.ctx.arc(m.x, m.y, m.r, 0, Math.PI * 2);
+          this.ctx.fillStyle = `rgba(192, 132, 252, ${m.alpha})`;
+          this.ctx.fill();
+        }
+
+        // 2. Click Burst Particles
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+          const p = this.particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.16; // Gravity
+          p.alpha -= p.decay;
+
+          if (p.alpha <= 0) {
+            this.particles.splice(i, 1);
+            continue;
+          }
+
+          this.ctx.save();
+          this.ctx.globalAlpha = Math.max(0, p.alpha);
+          this.ctx.fillStyle = p.color;
+          this.ctx.shadowColor = p.color;
+          this.ctx.shadowBlur = 10;
+
+          if (p.diamond) {
+            this.ctx.translate(p.x, p.y);
+            this.ctx.rotate(p.alpha * 4);
+            this.ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+          } else {
+            this.ctx.beginPath();
+            this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            this.ctx.fill();
+          }
+          this.ctx.restore();
+        }
+      }
+    };
+
+    /**
+     * =========================================================================
+     * 8. UI RENDERER, FINALE VIDEO CONTROLLER & DOM CONTROLLER
+     * =========================================================================
+     */
+    const UIRenderer = {
+      finaleTimerId: null,
+      finaleBarIntervalId: null,
+
+      init() {
+        this.applyStaticAssets();
+        this.applyGlintVisuals();
+        this.renderDrawerContent();
+        this.updateHUD();
+        this.syncDrawerState();
+      },
+
+      // Loads the NUM_IMAGE_URL and ROBUX_IMAGE_URL constants into the stage & alpha mask
+      applyStaticAssets() {
+        const numImgEl = document.getElementById('num-main-image');
+        const hudCoinEl = document.getElementById('hud-coin-icon');
+        const overlayEl = document.getElementById('num-glint-overlay');
+
+        numImgEl.src = NUM_IMAGE_URL;
+        hudCoinEl.src = ROBUX_IMAGE_URL;
+
+        document.documentElement.style.setProperty('--num-mask-url', `url("${NUM_IMAGE_URL}")`);
+        overlayEl.classList.add('alpha-masked');
+      },
+
+      // Triggers the NUMWATERONE Big Text + Song + Auto-Closing Video Popup
+      triggerNumwateroneFinale() {
+        const overlay = document.getElementById('numwaterone-finale-overlay');
+        const videoEl = document.getElementById('numwaterone-video-player');
+        const fallbackEl = document.getElementById('numwaterone-video-fallback');
+        const fallbackBar = document.getElementById('finale-fallback-bar');
+
+        if (this.finaleTimerId) clearTimeout(this.finaleTimerId);
+        if (this.finaleBarIntervalId) clearInterval(this.finaleBarIntervalId);
+
+        // 1. Play the NUMWATERONE Song
+        SoundEngine.playNumwateroneSong();
+
+        // 2. Show Fullscreen Overlay with Giant NUMWATERONE Text
+        overlay.classList.remove('hidden');
+        overlay.classList.add('flex');
+        requestAnimationFrame(() => {
+          overlay.classList.remove('opacity-0');
+          overlay.classList.add('opacity-100');
+        });
+
+        // 3. Play Video if NUMWATERONE_VIDEO_URL is set, and auto-close when video ends
+        if (NUMWATERONE_VIDEO_URL && NUMWATERONE_VIDEO_URL.trim() !== '') {
+          fallbackEl.classList.add('hidden');
+          fallbackEl.classList.remove('flex');
+          videoEl.classList.remove('hidden');
+
+          videoEl.src = NUMWATERONE_VIDEO_URL;
+          videoEl.currentTime = 0;
+          videoEl.volume = 0.5;
+
+          videoEl.onended = () => {
+            this.closeNumwateroneFinale();
+          };
+
+          videoEl.onerror = () => {
+            // If file path isn't found yet, gracefully show fallback cutscene
+            this.runFallbackCutscene(videoEl, fallbackEl, fallbackBar);
+          };
+
+          videoEl.play().catch(() => {
+            this.runFallbackCutscene(videoEl, fallbackEl, fallbackBar);
+          });
+        } else {
+          this.runFallbackCutscene(videoEl, fallbackEl, fallbackBar);
+        }
+      },
+
+      runFallbackCutscene(videoEl, fallbackEl, fallbackBar) {
+        videoEl.classList.add('hidden');
+        fallbackEl.classList.remove('hidden');
+        fallbackEl.classList.add('flex');
+
+        let progress = 0;
+        fallbackBar.style.width = '0%';
+        this.finaleBarIntervalId = setInterval(() => {
+          progress += 2;
+          fallbackBar.style.width = `${Math.min(100, progress)}%`;
+        }, 120);
+
+        this.finaleTimerId = setTimeout(() => {
+          this.closeNumwateroneFinale();
+        }, 6200);
+      },
+
+      closeNumwateroneFinale() {
+        const overlay = document.getElementById('numwaterone-finale-overlay');
+        const videoEl = document.getElementById('numwaterone-video-player');
+
+        if (this.finaleTimerId) clearTimeout(this.finaleTimerId);
+        if (this.finaleBarIntervalId) clearInterval(this.finaleBarIntervalId);
+
+        videoEl.pause();
+        videoEl.removeAttribute('src');
+        videoEl.load();
+
+        overlay.classList.remove('opacity-100');
+        overlay.classList.add('opacity-0');
+        setTimeout(() => {
+          overlay.classList.add('hidden');
+          overlay.classList.remove('flex');
+        }, 450);
+      },
+
+      // Updates the CSS Glint Shader class on the clickable Num based strictly on owned tier
+      applyGlintVisuals() {
+        const ownedTierObj = GameEngine.getOwnedGlintConfig();
+        const target = document.getElementById('num-click-target');
+
+        // Remove all glint-tier-X classes and apply the owned one
+        for (let i = 0; i <= 9; i++) {
+          target.classList.remove(`glint-tier-${i}`);
+        }
+        target.classList.add(`glint-tier-${ownedTierObj.tier}`);
+
+        // Update ambient glow & header badge
+        const glow = document.getElementById('num-ambient-glow');
+        glow.style.backgroundColor = ownedTierObj.glowColor;
+
+        const ring1 = document.getElementById('num-cosmic-ring-1');
+        const ring2 = document.getElementById('num-cosmic-ring-2');
+        if (ownedTierObj.tier >= 7) {
+          ring1.style.borderColor = ownedTierObj.glowColor;
+          ring2.style.borderColor = ownedTierObj.particleColors[1] || ownedTierObj.glowColor;
+          ring1.classList.add('opacity-80');
+        } else {
+          ring1.style.borderColor = 'rgba(168, 85, 247, 0.2)';
+          ring2.style.borderColor = 'rgba(232, 121, 249, 0.15)';
+        }
+
+        document.getElementById('stage-glint-name').textContent =
+          `${ownedTierObj.name.toUpperCase()} (${ownedTierObj.colorLabel})`;
+        document.getElementById('stage-glint-dot').style.backgroundColor = ownedTierObj.glowColor;
+
+        document.getElementById('header-tier-badge').textContent =
+          `TIER ${ownedTierObj.tier} • ${ownedTierObj.name.toUpperCase()}`;
+
+        // Update bottom next-glint teaser text
+        const nextTierObj = GameConfig.GLINT_TIERS[GameState.glintTier + 1];
+        const teaserEl = document.getElementById('next-glint-teaser');
+        if (nextTierObj) {
+          teaserEl.innerHTML = `Next Glint Evolution: <strong class="text-purple-100">${nextTierObj.name}</strong> <span class="text-fuchsia-300">(${formatNumber(nextTierObj.cost)} Robux)</span>`;
+        } else {
+          teaserEl.innerHTML = `<strong class="text-fuchsia-300">MAXIMUM TRANSCENDENCE ACHIEVED • NUMWATERONE</strong>`;
+        }
+      },
+
+      updateHUD() {
+        const ncps = GameEngine.computeNCPS();
+        const clickPower = GameEngine.computeClickPower();
+        const ownedGlint = GameEngine.getOwnedGlintConfig();
+
+        document.getElementById('hud-num-coins').textContent = formatNumber(GameState.numCoins);
+        document.getElementById('hud-ncps').textContent = `${formatNumber(ncps, ncps < 100 && ncps > 0)} /s`;
+        document.getElementById('hud-click-power').textContent = `+${formatNumber(clickPower)}`;
+        document.getElementById('hud-glint-mult').textContent = `${ownedGlint.clickMult}x Click • ${ownedGlint.globalMult}x All`;
+
+        document.getElementById('stat-total-clicks').textContent = GameState.totalClicks.toLocaleString();
+        document.getElementById('stat-lifetime-coins').textContent = formatNumber(GameState.lifetimeCoins);
+
+        // Frenzy banner check
+        const frenzyBanner = document.getElementById('frenzy-banner');
+        if (GameState.frenzyMultiplier > 1 && Date.now() < GameState.frenzyEndTime) {
+          const secs = Math.ceil((GameState.frenzyEndTime - Date.now()) / 1000);
+          frenzyBanner.classList.remove('hidden');
+          frenzyBanner.classList.add('flex');
+          document.getElementById('frenzy-text').textContent = `OVERDRIVE ${GameState.frenzyMultiplier}x (${secs}s)`;
+        } else {
+          GameState.frenzyMultiplier = 1;
+          frenzyBanner.classList.add('hidden');
+          frenzyBanner.classList.remove('flex');
+        }
+      },
+
+      // Updates button affordability states & notification badges without rebuilding DOM every frame
+      updateAffordableBadges() {
+        let totalAffordable = 0;
+
+        // 1. Check next Glint Tier
+        const nextGlint = GameConfig.GLINT_TIERS[GameState.glintTier + 1];
+        const glintAffordable = nextGlint && GameState.numCoins >= nextGlint.cost;
+        if (glintAffordable) totalAffordable++;
+        document.getElementById('badge-tab-glint').classList.toggle('hidden', !glintAffordable);
+
+        // 2. Check Click Upgrades
+        let anyClickAffordable = false;
+        GameConfig.CLICK_UPGRADES.forEach(u => {
+          const owned = GameState.clickUpgrades[u.id] || 0;
+          const info = getBulkPurchaseInfo(u.baseCost, u.costScale, owned, GameState.numCoins, GameState.buyAmount);
+          if (info.affordable) {
+            anyClickAffordable = true;
+            totalAffordable++;
+          }
+        });
+        document.getElementById('badge-tab-click').classList.toggle('hidden', !anyClickAffordable);
+
+        // 3. Check Auto-Clickers
+        let anyAutoAffordable = false;
+        GameConfig.AUTO_CLICKERS.forEach(a => {
+          const owned = GameState.autoClickers[a.id] || 0;
+          const info = getBulkPurchaseInfo(a.baseCost, a.costScale, owned, GameState.numCoins, GameState.buyAmount);
+          if (info.affordable) {
+            anyAutoAffordable = true;
+            totalAffordable++;
+          }
+        });
+        document.getElementById('badge-tab-auto').classList.toggle('hidden', !anyAutoAffordable);
+
+        document.getElementById('header-affordable-badge').textContent = totalAffordable;
+
+        // Live-update disabled/enabled look on currently visible cards
+        document.querySelectorAll('[data-upgrade-cost]').forEach(btn => {
+          const cost = parseFloat(btn.getAttribute('data-upgrade-cost'));
+          const canBuy = GameState.numCoins >= cost;
+          btn.disabled = !canBuy;
+          btn.classList.toggle('opacity-50', !canBuy);
+          btn.classList.toggle('cursor-not-allowed', !canBuy);
+          btn.classList.toggle('hover:border-purple-400', canBuy);
+        });
+      },
+
+      renderDrawerContent() {
+        const container = document.getElementById('drawer-content-container');
+        const tab = GameState.activeTab;
+
+        if (tab === 'glint') {
+          container.innerHTML = GameConfig.GLINT_TIERS.slice(1).map(t => {
+            const isUnlocked = GameState.glintTier >= t.tier;
+            const isNext = GameState.glintTier + 1 === t.tier;
+            const isFutureLocked = t.tier > GameState.glintTier + 1;
+            const canBuy = isNext && GameState.numCoins >= t.cost;
+
+            // Keep future unreached tiers mysterious to preserve anticipation
+            const displaySwatch = isFutureLocked
+              ? 'linear-gradient(135deg, #1e0f3d, #090414)'
+              : t.swatch;
+            const displayTitle = isFutureLocked ? `??? (${t.name})` : t.name;
+            const displayDesc = isFutureLocked
+              ? 'Unlock the preceding Glint tier to reveal this shader fusion.'
+              : t.desc;
+
+            return `
+              <div class="p-3.5 rounded-2xl border transition ${
+                isUnlocked
+                  ? 'bg-purple-950/40 border-emerald-500/40'
+                  : isNext
+                  ? 'bg-num-900/90 border-purple-400/50 shadow-lg shadow-purple-950/50'
+                  : 'bg-num-950/40 border-purple-500/15 opacity-55'
+              }">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-xl border border-white/30 shrink-0 shadow-inner flex items-center justify-center font-display font-bold text-xs text-white" style="background: ${displaySwatch}">
+                      ${isFutureLocked ? '<i class="fa-solid fa-lock text-purple-400"></i>' : `T${t.tier}`}
+                    </div>
+                    <div>
+                      <div class="flex items-center gap-2 flex-wrap">
+                        <h4 class="font-display font-bold text-sm text-white">${displayTitle}</h4>
+                        <span class="text-[10px] px-2 py-0.5 rounded-full bg-purple-950 border border-purple-500/30 text-purple-200">
+                          ${isFutureLocked ? 'Mystery Glint' : t.colorLabel}
+                        </span>
+                      </div>
+                      <p class="text-xs text-purple-200/70 mt-0.5">${displayDesc}</p>
+                      <div class="flex items-center gap-3 mt-1.5 text-[11px] font-mono text-fuchsia-300">
+                        <span>Click: <strong>${t.clickMult}x</strong></span>
+                        <span>Global: <strong>${t.globalMult}x</strong></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mt-3 pt-2.5 border-t border-purple-500/20 flex items-center justify-between">
+                  <span class="text-[11px] font-mono text-purple-300/70">
+                    Tier ${t.tier} of 9
+                  </span>
+
+                  ${
+                    isUnlocked
+                      ? `<div class="flex items-center gap-2">
+                           ${t.tier === 9 ? `<button id="btn-replay-finale" class="px-2.5 py-1 rounded-xl bg-fuchsia-600/30 hover:bg-fuchsia-600/50 border border-fuchsia-400/50 text-fuchsia-200 text-xs font-bold flex items-center gap-1 transition"><i class="fa-solid fa-play text-[10px]"></i> Finale</button>` : ''}
+                           <span class="px-3 py-1 rounded-xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs font-bold flex items-center gap-1.5">
+                             <i class="fa-solid fa-check"></i> Unlocked
+                           </span>
+                         </div>`
+                      : isNext
+                      ? `<button
+                           data-buy-glint="${t.tier}"
+                           data-upgrade-cost="${t.cost}"
+                           ${canBuy ? '' : 'disabled'}
+                           class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white text-xs font-bold flex items-center gap-1.5 shadow-md transition ${
+                             canBuy ? 'hover:from-purple-500 hover:to-fuchsia-500' : 'opacity-50 cursor-not-allowed'
+                           }"
+                         >
+                           <span>Evolve</span>
+                           <img src="${ROBUX_IMAGE_URL}" class="w-3.5 h-3.5 object-contain" alt="Robux" />
+                           <span class="font-mono">${formatNumber(t.cost)}</span>
+                         </button>`
+                      : `<span class="text-xs font-mono text-purple-400/60 flex items-center gap-1">
+                           <i class="fa-solid fa-lock text-[10px]"></i> Requires Tier ${t.tier - 1} (${formatNumber(t.cost)})
+                         </span>`
+                  }
+                </div>
+              </div>
+            `;
+          }).join('');
+
+          container.querySelectorAll('[data-buy-glint]').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const targetTier = parseInt(btn.getAttribute('data-buy-glint'), 10);
+              GameEngine.buyGlintTier(targetTier);
+            });
+          });
+
+          const replayBtn = container.querySelector('#btn-replay-finale');
+          if (replayBtn) {
+            replayBtn.addEventListener('click', () => UIRenderer.triggerNumwateroneFinale());
+          }
+        }
+
+        else if (tab === 'click') {
+          container.innerHTML = GameConfig.CLICK_UPGRADES.map(u => {
+            const owned = GameState.clickUpgrades[u.id] || 0;
+            const info = getBulkPurchaseInfo(u.baseCost, u.costScale, owned, GameState.numCoins, GameState.buyAmount);
+
+            return `
+              <button
+                data-buy-click="${u.id}"
+                data-upgrade-cost="${info.cost}"
+                ${info.affordable ? '' : 'disabled'}
+                class="w-full text-left p-3.5 rounded-2xl bg-num-900/85 border border-purple-500/25 transition flex items-center justify-between gap-3 ${
+                  info.affordable ? 'hover:border-purple-400 hover:bg-num-800/90' : 'opacity-50 cursor-not-allowed'
+                }"
+              >
+                <div class="flex items-center gap-3 min-w-0">
+                  <div class="w-11 h-11 rounded-xl bg-purple-950 border border-purple-500/30 flex items-center justify-center text-fuchsia-300 shrink-0">
+                    <i class="fa-solid ${u.icon} text-lg"></i>
+                  </div>
+                  <div class="min-w-0">
+                    <div class="flex items-center gap-2">
+                      <h4 class="font-semibold text-sm text-white truncate">${u.name}</h4>
+                      <span class="text-[11px] font-mono px-2 py-0.5 rounded-md bg-purple-950 text-purple-300 border border-purple-500/20">
+                        Lv. ${owned}
+                      </span>
+                    </div>
+                    <p class="text-xs text-purple-300/70 mt-0.5 line-clamp-2">${u.desc}</p>
+                  </div>
+                </div>
+
+                <div class="shrink-0 text-right">
+                  <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-num-950 border border-purple-500/30">
+                    <img src="${ROBUX_IMAGE_URL}" class="w-3.5 h-3.5 object-contain" alt="Robux" />
+                    <span class="font-mono font-bold text-xs text-white">${formatNumber(info.cost)}</span>
+                  </div>
+                  <p class="text-[10px] font-mono text-purple-300/70 mt-1">Buy +${info.count}</p>
+                </div>
+              </button>
+            `;
+          }).join('');
+
+          container.querySelectorAll('[data-buy-click]').forEach(btn => {
+            btn.addEventListener('click', () => {
+              GameEngine.buyClickUpgrade(btn.getAttribute('data-buy-click'));
+            });
+          });
+        }
+
+        else if (tab === 'auto') {
+          const glintMult = GameEngine.getOwnedGlintConfig().globalMult;
+          container.innerHTML = GameConfig.AUTO_CLICKERS.map(a => {
+            const owned = GameState.autoClickers[a.id] || 0;
+            const info = getBulkPurchaseInfo(a.baseCost, a.costScale, owned, GameState.numCoins, GameState.buyAmount);
+            const effectiveEach = a.baseNcps * glintMult;
+
+            return `
+              <button
+                data-buy-auto="${a.id}"
+                data-upgrade-cost="${info.cost}"
+                ${info.affordable ? '' : 'disabled'}
+                class="w-full text-left p-3.5 rounded-2xl bg-num-900/85 border border-purple-500/25 transition flex items-center justify-between gap-3 ${
+                  info.affordable ? 'hover:border-purple-400 hover:bg-num-800/90' : 'opacity-50 cursor-not-allowed'
+                }"
+              >
+                <div class="flex items-center gap-3 min-w-0">
+                  <div class="w-11 h-11 rounded-xl bg-purple-950 border border-purple-500/30 flex items-center justify-center text-indigo-300 shrink-0">
+                    <i class="fa-solid ${a.icon} text-lg"></i>
+                  </div>
+                  <div class="min-w-0">
+                    <div class="flex items-center gap-2">
+                      <h4 class="font-semibold text-sm text-white truncate">${a.name}</h4>
+                      <span class="text-[11px] font-mono px-2 py-0.5 rounded-md bg-purple-950 text-purple-300 border border-purple-500/20">
+                        x${owned}
+                      </span>
+                    </div>
+                    <p class="text-xs text-purple-300/70 mt-0.5 truncate">${a.desc}</p>
+                    <p class="text-[11px] font-mono text-emerald-300/90 mt-1">
+                      +${formatNumber(effectiveEach, effectiveEach < 10)} Robux/s each
+                    </p>
+                  </div>
+                </div>
+
+                <div class="shrink-0 text-right">
+                  <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-num-950 border border-purple-500/30">
+                    <img src="${ROBUX_IMAGE_URL}" class="w-3.5 h-3.5 object-contain" alt="Robux" />
+                    <span class="font-mono font-bold text-xs text-white">${formatNumber(info.cost)}</span>
+                  </div>
+                  <p class="text-[10px] font-mono text-purple-300/70 mt-1">Buy +${info.count}</p>
+                </div>
+              </button>
+            `;
+          }).join('');
+
+          container.querySelectorAll('[data-buy-auto]').forEach(btn => {
+            btn.addEventListener('click', () => {
+              GameEngine.buyAutoClicker(btn.getAttribute('data-buy-auto'));
+            });
+          });
+        }
+      },
+
+      syncDrawerState() {
+        const drawer = document.getElementById('upgrade-drawer');
+        const chevron = document.getElementById('drawer-chevron');
+        if (GameState.drawerOpen) {
+          drawer.classList.remove('!w-0', '!border-l-0');
+          chevron.classList.remove('rotate-180');
+        } else {
+          drawer.classList.add('!w-0', '!border-l-0');
+          chevron.classList.add('rotate-180');
+        }
+      },
+
+      showToast(title, subtitle = '') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = 'px-4 py-3 rounded-2xl bg-num-900/95 border border-purple-400/50 shadow-2xl text-white flex items-center gap-3 transition-all duration-300';
+        toast.innerHTML = `
+          <div class="w-8 h-8 rounded-xl bg-purple-600/40 border border-purple-400/40 flex items-center justify-center text-fuchsia-300">
+            <i class="fa-solid fa-sparkles"></i>
+          </div>
+          <div>
+            <p class="font-display font-bold text-xs tracking-wide text-purple-100">${title}</p>
+            ${subtitle ? `<p class="text-[11px] text-purple-300/80">${subtitle}</p>` : ''}
+          </div>
+        `;
+        container.appendChild(toast);
+        setTimeout(() => {
+          toast.style.opacity = '0';
+          toast.style.transform = 'translateY(10px)';
+          setTimeout(() => toast.remove(), 300);
+        }, 3200);
+      }
+    };
+
+    /**
+     * =========================================================================
+     * 9. PERSISTENCE (LocalStorage Save / Load / Offline Earnings)
+     * =========================================================================
+     */
+    function saveGame() {
+      try {
+        GameState.lastTick = Date.now();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(GameState));
+        const ind = document.getElementById('autosave-indicator');
+        if (ind) {
+          ind.innerHTML = '<i class="fa-solid fa-check-circle mr-1"></i>Saved';
+        }
+      } catch (e) {
+        console.warn('Save failed:', e);
+      }
+    }
+
+    function loadGame() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        GameState = {
+          ...createInitialState(),
+          ...parsed,
+          clickUpgrades: { ...createInitialState().clickUpgrades, ...(parsed.clickUpgrades || {}) },
+          autoClickers: { ...createInitialState().autoClickers, ...(parsed.autoClickers || {}) }
+        };
+
+        // Calculate Offline Progression (50% efficiency while away)
+        const elapsedSec = (Date.now() - (parsed.lastTick || Date.now())) / 1000;
+        if (elapsedSec > 10) {
+          const offlineEarned = GameEngine.computeNCPS() * elapsedSec * 0.5;
+          if (offlineEarned >= 1) {
+            GameState.numCoins += offlineEarned;
+            GameState.lifetimeCoins += offlineEarned;
+            setTimeout(() => {
+              UIRenderer.showToast(
+                'WELCOME BACK!',
+                `Offline Automatons minted +${formatNumber(offlineEarned)} Robux`
+              );
+            }, 600);
+          }
+        }
+      } catch (e) {
+        console.warn('Failed to load save:', e);
+      }
+    }
+
+    /**
+     * =========================================================================
+     * 10. EVENT BINDINGS & MAIN TICK LOOP
+     * =========================================================================
+     */
+    function bindEvents() {
+      const clickTarget = document.getElementById('num-click-target');
+
+      // Click / Tap on the Num
+      clickTarget.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        clickTarget.classList.add('clicked');
+        const x = e.clientX || (clickTarget.getBoundingClientRect().left + clickTarget.offsetWidth / 2);
+        const y = e.clientY || (clickTarget.getBoundingClientRect().top + clickTarget.offsetHeight / 2);
+        GameEngine.handleManualClick(x, y);
+      });
+
+      window.addEventListener('pointerup', () => {
+        clickTarget.classList.remove('clicked');
+      });
+
+      // Keyboard accessibility (Space / Enter on Num)
+      clickTarget.addEventListener('keydown', (e) => {
+        if (e.code === 'Space' || e.code === 'Enter') {
+          e.preventDefault();
+          const rect = clickTarget.getBoundingClientRect();
+          clickTarget.classList.add('clicked');
+          GameEngine.handleManualClick(rect.left + rect.width / 2, rect.top + rect.height / 2);
+          setTimeout(() => clickTarget.classList.remove('clicked'), 90);
+        }
+      });
+
+      // Collapsible Side Drawer Toggles
+      const toggleDrawer = () => {
+        GameState.drawerOpen = !GameState.drawerOpen;
+        UIRenderer.syncDrawerState();
+      };
+      document.getElementById('btn-drawer-handle').addEventListener('click', toggleDrawer);
+      document.getElementById('btn-header-drawer').addEventListener('click', toggleDrawer);
+
+      // Drawer Category Tabs
+      document.querySelectorAll('.drawer-tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          GameState.activeTab = btn.getAttribute('data-tab');
+          document.querySelectorAll('.drawer-tab-btn').forEach(b => {
+            const active = b.getAttribute('data-tab') === GameState.activeTab;
+            b.className = active
+              ? 'drawer-tab-btn py-2 px-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 bg-purple-600/30 text-white border border-purple-400/50 transition'
+              : 'drawer-tab-btn py-2 px-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 text-purple-300 hover:bg-purple-900/40 border border-transparent transition';
+          });
+          UIRenderer.renderDrawerContent();
+        });
+      });
+
+      // Buy Amount Multipliers (1x, 10x, MAX)
+      document.querySelectorAll('.buy-amt-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const val = btn.getAttribute('data-buy-amt');
+          GameState.buyAmount = val === 'MAX' ? 'MAX' : parseInt(val, 10);
+          document.querySelectorAll('.buy-amt-btn').forEach(b => {
+            const active = b.getAttribute('data-buy-amt') === val;
+            b.className = active
+              ? 'buy-amt-btn px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-purple-600 text-white transition'
+              : 'buy-amt-btn px-2.5 py-1 rounded-lg text-xs font-mono font-bold text-purple-300 hover:text-white transition';
+          });
+          UIRenderer.renderDrawerContent();
+        });
+      });
+
+      // Sound Toggle
+      document.getElementById('btn-toggle-sound').addEventListener('click', () => {
+        GameState.soundEnabled = !GameState.soundEnabled;
+        if (!GameState.soundEnabled) {
+          SoundEngine.stopFinaleSong();
+        }
+        const icon = document.getElementById('icon-sound');
+        icon.className = GameState.soundEnabled
+          ? 'fa-solid fa-volume-high text-sm text-purple-200'
+          : 'fa-solid fa-volume-xmark text-sm text-purple-400/50';
+      });
+
+      // Close NUMWATERONE Finale Overlay Button
+      document.getElementById('btn-close-finale').addEventListener('click', () => {
+        UIRenderer.closeNumwateroneFinale();
+      });
+
+      // Settings & Developer Sandbox Modal
+      const modalSettings = document.getElementById('modal-settings');
+      document.getElementById('btn-open-settings').addEventListener('click', () => {
+        modalSettings.classList.remove('hidden');
+        modalSettings.classList.add('flex');
+      });
+      document.getElementById('btn-close-settings').addEventListener('click', () => {
+        modalSettings.classList.add('hidden');
+        modalSettings.classList.remove('flex');
+      });
+
+      document.getElementById('btn-dev-boost').addEventListener('click', () => {
+        GameState.numCoins += 500000000;
+        GameState.lifetimeCoins += 500000000;
+        UIRenderer.updateHUD();
+        UIRenderer.renderDrawerContent();
+        UIRenderer.showToast('DEV BOOST GRANTED', '+500,000,000 Robux added');
+      });
+
+      document.getElementById('btn-test-finale').addEventListener('click', () => {
+        modalSettings.classList.add('hidden');
+        modalSettings.classList.remove('flex');
+        UIRenderer.triggerNumwateroneFinale();
+      });
+
+      document.getElementById('btn-manual-save').addEventListener('click', () => {
+        saveGame();
+        UIRenderer.showToast('GAME SAVED');
+      });
+
+      document.getElementById('btn-hard-reset').addEventListener('click', () => {
+        localStorage.removeItem(STORAGE_KEY);
+        GameState = createInitialState();
+        UIRenderer.init();
+        modalSettings.classList.add('hidden');
+        modalSettings.classList.remove('flex');
+        UIRenderer.showToast('PROGRESS RESET', 'Fresh run started.');
+      });
+    }
+
+    /**
+     * =========================================================================
+     * 11. MAIN GAME LOOP (Delta-Time Based)
+     * =========================================================================
+     */
+    let lastFrameTime = performance.now();
+    let uiRefreshAccumulator = 0;
+    let orbSpawnAccumulator = 0;
+
+    function mainLoop(now) {
+      const dt = Math.min(1, (now - lastFrameTime) / 1000);
+      lastFrameTime = now;
+
+      // 1. Add Passive Auto-Clicker Robux
+      const ncps = GameEngine.computeNCPS();
+      if (ncps > 0) {
+        const gained = ncps * dt;
+        GameState.numCoins += gained;
+        GameState.lifetimeCoins += gained;
+      }
+
+      // 2. Render Particle Canvas
+      VisualFX.renderFrame();
+
+      // 3. Throttle DOM HUD & Affordability Checks (10 times per sec)
+      uiRefreshAccumulator += dt;
+      if (uiRefreshAccumulator >= 0.1) {
+        uiRefreshAccumulator = 0;
+        UIRenderer.updateHUD();
+        UIRenderer.updateAffordableBadges();
+      }
+
+      // 4. Periodic Lucky Num-Orb Spawn Check
+      orbSpawnAccumulator += dt;
+      if (orbSpawnAccumulator >= 42) {
+        orbSpawnAccumulator = 0;
+        if (Math.random() < 0.65) {
+          VisualFX.spawnLuckyNumOrb();
+        }
+      }
+
+      requestAnimationFrame(mainLoop);
+    }
+
+    // Start the game on window load
+    window.onload = function () {
+      SoundEngine.preloadCustomAudio();
+      loadGame();
+      VisualFX.init();
+      UIRenderer.init();
+      bindEvents();
+      setInterval(saveGame, 10000);
+      requestAnimationFrame(mainLoop);
+    };
+  </script>
+</body>
+</html>
